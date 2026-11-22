@@ -79,7 +79,7 @@ export default function PrivacyPage() {
           ]}
         />
         <p>
-          비밀번호는 암호화되어 저장되며, 운영자도 볼 수 없어요. 이메일은 로그인과 본인 확인에만 쓰고, 다른
+          비밀번호는 암호화되어 저장되며, 운영자도 볼 수 없어요. 이메일은 로그인, 본인 확인, 비밀번호 찾기 메일 보내기에만 쓰고, 다른
           이용자에게는 어떤 화면에서도 보이지 않아요.
         </p>
         <p className="text-sm text-ink-sub">
@@ -90,7 +90,7 @@ export default function PrivacyPage() {
 
       <Section title="2. 왜 모으나요?">
         <ul className="flex list-disc flex-col gap-1 pl-5">
-          <li>회원 가입, 로그인, 본인 확인</li>
+          <li>회원 가입, 로그인, 본인 확인, 비밀번호 찾기</li>
           <li>기억과 답, 실마리를 저장하고 다시 보여 주기</li>
           <li>이용자가 공유를 켠 기억을 별명과 함께 &lsquo;함께 보기&rsquo;에 보여 주기, 공감 표시</li>
           <li>신고 접수와 부적절한 글 관리</li>
@@ -134,6 +134,11 @@ export default function PrivacyPage() {
               "Vercel Inc.",
               "웹사이트 제공(화면 전달)과 접속 기록 처리",
               "미국 등 Vercel이 운영하는 서버",
+            ],
+            [
+              "네이버 주식회사",
+              "비밀번호 찾기 메일 보내기 (받는 이메일 주소와 메일 내용)",
+              "대한민국",
             ],
           ]}
         />

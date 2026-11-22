@@ -149,6 +149,14 @@ export default function AuthForm({ mode }: { mode: "login" | "signup" }) {
       <Link href={otherHref} className={`${textLink} mt-2`}>
         {isSignup ? "이미 가입했다면, 로그인" : "처음이라면, 가입하기"}
       </Link>
+      {!isSignup && (
+        <Link
+          href="/forgot-password"
+          className="flex h-11 items-center justify-center text-sm text-ink-sub underline hover:text-ink"
+        >
+          비밀번호를 잊었어요
+        </Link>
+      )}
     </main>
   );
 }

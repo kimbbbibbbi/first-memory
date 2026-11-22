@@ -64,6 +64,42 @@ export async function signOut() {
 }
 
 /**
+ * 비밀번호 재설정 메일 보내기.
+ * 가입하지 않은 이메일이어도 똑같이 "보냈어요"라고 답해요 (가입 여부를 알려 주지 않으려고요).
+ * 메일 속 링크는 Supabase 메일 템플릿에서 /auth/confirm 으로 가게 정해요.
+ */
+export async function requestPasswordReset(email: string) {
+  const trimmed = email.trim();
+  if (!trimmed.includes("@")) return "이메일 주소를 다시 확인해 주세요.";
+  const { error } = await supabase().auth.resetPasswordForEmail(trimmed, {
+    redirectTo: `${window.location.origin}/auth/confirm`,
+  });
+  if (error) {
+    const m = `${error.code ?? ""} ${error.message}`.toLowerCase();
+    if (m.includes("rate") || m.includes("seconds")) return "조금 전에 보냈어요. 잠시 뒤에 다시 해 주세요.";
+    if (m.includes("email")) return "이메일 주소를 다시 확인해 주세요.";
+    return "메일을 보내지 못했어요. 잠시 뒤에 다시 해 주세요.";
+  }
+  return null;
+}
+
+/** 새 비밀번호 저장 (재설정 링크로 들어온 뒤) */
+export async function setNewPassword(password: string, again: string) {
+  if (password.length < PASSWORD_MIN) return `비밀번호는 ${PASSWORD_MIN}자 이상으로 적어 주세요.`;
+  if (password !== again) return "비밀번호와 비밀번호 확인이 달라요. 다시 적어 주세요.";
+  const { error } = await supabase().auth.updateUser({ password });
+  if (error) {
+    const m = `${error.code ?? ""} ${error.message}`.toLowerCase();
+    if (m.includes("same_password") || m.includes("different from the old"))
+      return "예전 비밀번호와 다른 비밀번호를 적어 주세요.";
+    if (m.includes("session") || m.includes("jwt")) return "링크가 만료됐어요. 비밀번호 찾기를 다시 해 주세요.";
+    return friendly(error.message, error.code);
+  }
+  resetMyData();
+  return null;
+}
+
+/**
  * 계정 삭제: 비밀번호가 맞는지 먼저 확인한 뒤, 데이터베이스의 delete_my_account 함수로 지워요.
  * 계정과 기억·답·실마리·공감·신고가 모두 지워지고 되돌릴 수 없어요.
  * (이메일은 확인용으로만 쓰고 화면에 보여 주지 않아요)
