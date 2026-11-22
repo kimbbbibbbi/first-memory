@@ -1,13 +1,13 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
-import { use, useState } from "react";
-import { browser } from "react-dom";
+import { useState } from "react";
 import { BackLink } from "@/components/BackLink";
 import Chip from "@/components/Chip";
-import { ShareSwitchComingSoon } from "@/components/ComingSoon";
+import DataGate from "@/components/DataGate";
 import MissingMemory from "@/components/MissingMemory";
 import PageHeader from "@/components/PageHeader";
+import ShareSwitch from "@/components/ShareSwitch";
 import { CloseIcon, PlusIcon } from "@/components/icons";
 import { primaryButton, textLink } from "@/components/ui";
 import {
@@ -19,36 +19,65 @@ import {
 } from "@/data/questions";
 import { formatAgeRange } from "@/lib/ages";
 import { memoryOrigin } from "@/lib/prompts";
-import { MAX_CLUES, loadClues, replaceClues, type ClueDraft } from "@/lib/storage";
-import type { Memory, MemoryDetail } from "@/lib/types";
-import { useClues, useDetails, useMemories } from "@/lib/useStored";
+import {
+  MAX_CLUES,
+  SaveError,
+  replaceClues,
+  setVisibility,
+  type ClueDraft,
+} from "@/lib/storage";
+import type { Clue, Memory, MemoryDetail } from "@/lib/types";
 
 const CLUE_MAX_LENGTH = 20;
 
 export default function Organize() {
-  use(browser("기억은 브라우저(localStorage)에 저장돼 있어요."));
   const id = useSearchParams().get("id");
   const { bfcacheId } = useRouter();
-  const memory = useMemories().find((m) => m.id === id);
 
-  if (!memory) return <MissingMemory title="기억 정리" />;
-  return <OrganizeForm key={`${bfcacheId}-${memory.id}`} memory={memory} />;
+  return (
+    <DataGate>
+      {({ memories, details, clues }) => {
+        const memory = memories.find((m) => m.id === id);
+        if (!memory) return <MissingMemory title="기억 정리" />;
+        return (
+          <OrganizeForm
+            key={`${bfcacheId}-${memory.id}`}
+            memory={memory}
+            memories={memories}
+            clues={clues}
+            details={details.filter((d) => d.memory_id === memory.id)}
+          />
+        );
+      }}
+    </DataGate>
+  );
 }
 
-function OrganizeForm({ memory }: { memory: Memory }) {
+function OrganizeForm({
+  memory,
+  memories,
+  clues,
+  details,
+}: {
+  memory: Memory;
+  memories: Memory[];
+  clues: Clue[];
+  details: MemoryDetail[];
+}) {
   const router = useRouter();
-  const memories = useMemories();
-  const clues = useClues();
-  const details = useDetails().filter((d) => d.memory_id === memory.id);
 
   // 이미 남긴 실마리가 있으면 그대로 불러와요
   const [drafts, setDrafts] = useState<ClueDraft[]>(() =>
-    loadClues()
+    clues
       .filter((c) => c.memory_id === memory.id)
       .map(({ id, type, text }) => ({ id, type, text })),
   );
   const [text, setText] = useState("");
   const [type, setType] = useState<ClueType>("person");
+  // 공유 스위치: 처음엔 지금 상태(새 기억은 늘 꺼짐)
+  const [share, setShare] = useState(memory.visibility === "shared");
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
 
   const full = drafts.length >= MAX_CLUES;
   const has = (t: string) => drafts.some((d) => d.text === t);
@@ -72,9 +101,20 @@ function OrganizeForm({ memory }: { memory: Memory }) {
     })
     .filter((c): c is { text: string; type: ClueType } => c !== null && !has(c.text));
 
-  function save(next: string) {
-    replaceClues(memory.id, drafts);
-    router.push(next);
+  async function save(next: string) {
+    if (busy) return;
+    setBusy(true);
+    setError("");
+    try {
+      await replaceClues(memory.id, clues, drafts);
+      const visibility = share ? "shared" : "private";
+      if (visibility !== memory.visibility) await setVisibility(memory.id, visibility);
+      router.push(next);
+    } catch (e) {
+      setError(e instanceof SaveError ? e.message : "저장하지 못했어요. 다시 해 주세요.");
+    } finally {
+      setBusy(false);
+    }
   }
 
   return (
@@ -187,13 +227,24 @@ function OrganizeForm({ memory }: { memory: Memory }) {
           )}
         </section>
 
-        <ShareSwitchComingSoon />
+        <ShareSwitch on={share} onChange={setShare} hidden={memory.hidden && share} />
+
+        {error && (
+          <p role="alert" className="rounded-row bg-sand px-4 py-3 text-ui text-sand-ink">
+            {error}
+          </p>
+        )}
 
         <div className="mt-auto flex flex-col pt-4 pb-4">
-          <button type="button" onClick={() => save(`/branch?id=${memory.id}`)} className={primaryButton}>
-            저장하고 이어서 떠올리기
+          <button
+            type="button"
+            onClick={() => save(`/branch?id=${memory.id}`)}
+            disabled={busy}
+            className={primaryButton}
+          >
+            {busy ? "저장하고 있어요…" : "저장하고 이어서 떠올리기"}
           </button>
-          <button type="button" onClick={() => save("/memories")} className={textLink}>
+          <button type="button" onClick={() => save("/memories")} disabled={busy} className={textLink}>
             저장하고 오늘은 여기까지
           </button>
         </div>

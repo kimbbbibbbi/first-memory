@@ -15,9 +15,22 @@ export default function MemoryCard({
   memory: Memory;
   /** 예: "출발 질문", "놀이와 친구", "'할머니'에서 이어짐" */
   origin: string;
-  onDelete: (id: string) => void;
+  onDelete: (id: string) => Promise<void>;
 }) {
   const [confirming, setConfirming] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
+
+  async function handleDelete() {
+    setBusy(true);
+    setError("");
+    try {
+      await onDelete(memory.id);
+    } catch {
+      setError("지우지 못했어요. 다시 해 주세요.");
+      setBusy(false);
+    }
+  }
 
   const smallButton =
     "flex h-11 items-center rounded-full px-3 text-sm text-ink-sub hover:text-ink";
@@ -43,7 +56,7 @@ export default function MemoryCard({
         <p className="font-batang text-memory whitespace-pre-line">{memory.body}</p>
 
         <div className="flex items-center justify-between gap-2">
-          <StatusTag />
+          <StatusTag shared={memory.visibility === "shared"} hidden={memory.hidden} />
           {!confirming && (
             <div className="flex items-center whitespace-nowrap">
               <Link href={`/organize?id=${memory.id}`} className={smallButton}>
@@ -70,14 +83,21 @@ export default function MemoryCard({
             className="flex items-center gap-1 rounded-row bg-sand py-1 pl-4"
           >
             <span className="min-w-0 flex-1 text-sm text-sand-ink">
-              정말 지울까요?
-              <br />
-              답과 실마리도 함께 지워져요.
+              {error || (
+                <>
+                  정말 지울까요?
+                  <br />
+                  {memory.visibility === "shared"
+                    ? "함께 보기에서도 바로 사라져요."
+                    : "답과 실마리도 함께 지워져요."}
+                </>
+              )}
             </span>
             <button
               type="button"
+              disabled={busy}
               className={`${smallButton} shrink-0 font-bold text-sand-ink`}
-              onClick={() => onDelete(memory.id)}
+              onClick={handleDelete}
             >
               지우기
             </button>

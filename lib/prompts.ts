@@ -269,6 +269,15 @@ export function memoryOrigin(m: Memory, memories: Memory[], clues: Clue[]): stri
   return "이어진 기억";
 }
 
+/** 함께 보기에 보여줄 질문 종류 이름 (실마리가 들어간 질문 문장은 보여주지 않아요) */
+export function questionKind(questionId: string | null): string {
+  const q = getQuestion(questionId);
+  if (!q) return "자유 기록";
+  if (q.layer === "start") return "출발 질문";
+  if (q.layer === "topic") return q.dimension;
+  return "이어진 기억";
+}
+
 /** 기억을 짧게 부르는 이름 (제목, 없으면 본문 앞부분) */
 export function shortName(m: Memory): string {
   if (m.title) return m.title;

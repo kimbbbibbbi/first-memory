@@ -1,5 +1,5 @@
 // 앱에서 쓰는 데이터의 모양이에요.
-// 2단계에서 Supabase 데이터베이스로 옮길 때도 같은 이름을 쓰도록 PLAN.md "데이터 구조"에 맞췄어요.
+// Supabase 표(supabase/schema.sql)와 같은 이름을 써요. PLAN.md "데이터 구조"를 따라요.
 
 import type { ClueType, Source } from "@/data/questions";
 
@@ -11,6 +11,7 @@ export type Visibility = "private" | "shared";
 /** 기억 (memories) */
 export interface Memory {
   id: string;
+  user_id: string;
   /** 어떤 질문에 대한 답인지. 자유 기록이면 null */
   question_id: string | null;
   /**
@@ -30,8 +31,12 @@ export interface Memory {
   age_to: number;
   /** 기억의 출처: 직접 기억 · 사진/영상 · 들은 이야기 · 모름. 아직 안 골랐으면 null */
   source: Source | null;
-  /** 1단계에서는 항상 "private" */
+  /** 처음엔 항상 "private". 쓴 사람이 기억 정리에서 직접 켜야 "shared" */
   visibility: Visibility;
+  /** 공유를 켠 때 (함께 보기 순서용) */
+  shared_at: string | null;
+  /** 신고가 3번 쌓여 함께 보기에서 숨겨졌는지 */
+  hidden: boolean;
   created_at: string;
   updated_at: string;
 }

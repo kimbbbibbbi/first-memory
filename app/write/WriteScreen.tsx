@@ -1,11 +1,11 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
-import { use, useState } from "react";
-import { browser } from "react-dom";
+import { useState } from "react";
 import AgePicker, { type AgeRange } from "@/components/AgePicker";
 import { BackLink } from "@/components/BackLink";
 import { PhotoButtonComingSoon } from "@/components/ComingSoon";
+import DataGate from "@/components/DataGate";
 import LinedTextarea from "@/components/LinedTextarea";
 import MissingMemory from "@/components/MissingMemory";
 import PageHeader from "@/components/PageHeader";
@@ -21,8 +21,8 @@ import {
   topicPrompt,
   type Prompt,
 } from "@/lib/prompts";
-import { addMemory, getMemory, loadClues, updateMemory } from "@/lib/storage";
-import type { Memory } from "@/lib/types";
+import { SaveError, addMemory, updateMemory } from "@/lib/storage";
+import type { Clue, Memory } from "@/lib/types";
 
 const BODY_MAX = 500;
 const TITLE_MAX = 40;
@@ -36,16 +36,16 @@ const TITLE_MAX = 40;
  *   /write?free=1             질문 없이 쓰기
  *   /write?edit=…(&then=deepen) 쓴 기억 고치기
  */
-function promptFromParams(params: URLSearchParams): Prompt {
+function promptFromParams(params: URLSearchParams, memories: Memory[], clues: Clue[]): Prompt {
   const t = params.get("t");
   const clueId = params.get("clue");
   const from = params.get("from");
   if (t && clueId) {
-    const clue = loadClues().find((c) => c.id === clueId);
+    const clue = clues.find((c) => c.id === clueId);
     const p = clue && cluePrompt(t, clue);
     if (p) return p;
   }
-  if (t && from && getMemory(from)) {
+  if (t && from && memories.some((m) => m.id === from)) {
     const p = timePrompt(t, from);
     if (p) return p;
   }
@@ -55,27 +55,37 @@ function promptFromParams(params: URLSearchParams): Prompt {
 }
 
 export default function WriteScreen() {
-  use(browser("기억은 브라우저(localStorage)에 저장돼 있어요."));
   const params = useSearchParams();
   // bfcacheId: 이 화면에 새로 들어올 때마다 바뀌는 값이에요.
   // Next.js는 떠났던 화면을 그대로 남겨 두는데, 기억 쓰기는 들어올 때마다 빈 칸으로 시작해야 해서 key에 넣어요.
   const { bfcacheId } = useRouter();
   const editId = params.get("edit");
 
-  if (editId) {
-    const memory = getMemory(editId);
-    if (!memory) return <MissingMemory title="기억 고치기" />;
-    return (
-      <WriteForm
-        key={`${bfcacheId}-edit-${editId}`}
-        initialPrompt={promptOfMemory(memory)}
-        editing={memory}
-        thenDeepen={params.get("then") === "deepen"}
-      />
-    );
-  }
-  // 주소(?q= 등)가 바뀌면 key도 바뀌어서 입력칸이 새로 시작돼요
-  return <WriteForm key={`${bfcacheId}-${params.toString()}`} initialPrompt={promptFromParams(params)} />;
+  return (
+    <DataGate>
+      {({ memories, clues }) => {
+        if (editId) {
+          const memory = memories.find((m) => m.id === editId);
+          if (!memory) return <MissingMemory title="기억 고치기" />;
+          return (
+            <WriteForm
+              key={`${bfcacheId}-edit-${editId}`}
+              initialPrompt={promptOfMemory(memory)}
+              editing={memory}
+              thenDeepen={params.get("then") === "deepen"}
+            />
+          );
+        }
+        // 주소(?q= 등)가 바뀌면 key도 바뀌어서 입력칸이 새로 시작돼요
+        return (
+          <WriteForm
+            key={`${bfcacheId}-${params.toString()}`}
+            initialPrompt={promptFromParams(params, memories, clues)}
+          />
+        );
+      }}
+    </DataGate>
+  );
 }
 
 function WriteForm({
@@ -99,6 +109,7 @@ function WriteForm({
   const [title, setTitle] = useState(editing?.title ?? "");
   const [body, setBody] = useState(editing?.body ?? "");
   const [error, setError] = useState("");
+  const [busy, setBusy] = useState(false);
   // 한 번 저장한 뒤 뒤로 와서 다시 저장하면, 새로 만들지 않고 고쳐요
   const [savedId, setSavedId] = useState<string | null>(editing?.id ?? null);
 
@@ -113,7 +124,8 @@ function WriteForm({
     };
   }
 
-  function handleSave() {
+  async function handleSave() {
+    if (busy) return;
     if (!age) return setError("그때 나이를 골라 주세요.");
     if (isFree && !title.trim()) return setError("제목을 적어 주세요.");
     if (!body.trim()) return setError("기억을 한 줄이라도 적어 주세요.");
@@ -125,15 +137,22 @@ function WriteForm({
       age_to: age.to,
     };
 
-    let id = savedId;
-    if (id) {
-      // 고치기: 질문은 그대로 두고 내용만 바꿔요
-      updateMemory(id, editing ? content : { ...content, ...questionFields(prompt) });
-    } else {
-      id = addMemory({ ...content, ...questionFields(prompt) }).id;
-      setSavedId(id);
+    setBusy(true);
+    try {
+      let id = savedId;
+      if (id) {
+        // 고치기: 질문은 그대로 두고 내용만 바꿔요
+        await updateMemory(id, content);
+      } else {
+        id = await addMemory({ ...content, ...questionFields(prompt) });
+        setSavedId(id);
+      }
+      router.push(goesToDeepen ? `/deepen?id=${id}` : "/memories");
+    } catch (e) {
+      setError(e instanceof SaveError ? e.message : "저장하지 못했어요. 다시 해 주세요.");
+    } finally {
+      setBusy(false);
     }
-    router.push(goesToDeepen ? `/deepen?id=${id}` : "/memories");
   }
 
   function switchToFree() {
@@ -212,8 +231,8 @@ function WriteForm({
         )}
 
         <div className="mt-auto flex flex-col pt-4 pb-4">
-          <button type="button" onClick={handleSave} className={primaryButton}>
-            {goesToDeepen ? "저장하고 더 떠올려 보기" : "저장"}
+          <button type="button" onClick={handleSave} disabled={busy} className={primaryButton}>
+            {busy ? "저장하고 있어요…" : goesToDeepen ? "저장하고 더 떠올려 보기" : "저장"}
           </button>
           {!isFree && !editing && (
             <button type="button" onClick={switchToFree} className={textLink}>

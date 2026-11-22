@@ -1,22 +1,26 @@
 "use client";
 
 import Link from "next/link";
-import { use, useState } from "react";
-import { browser } from "react-dom";
+import { useState } from "react";
+import DataGate from "@/components/DataGate";
 import Seed from "@/components/Seed";
 import { TOPICS, clueTypeLabel } from "@/data/questions";
 import { nextTopicQuestion, suggestion, topicCounts } from "@/lib/prompts";
 import { unopenedClues } from "@/lib/storage";
-import { useClues, useMemories } from "@/lib/useStored";
+import type { Clue, Memory } from "@/lib/types";
 
 /** 열지 않은 실마리를 처음에 몇 개까지 보여줄지 */
 const CLUE_PREVIEW = 3;
 
 export default function Journey() {
-  use(browser("기억은 브라우저(localStorage)에 저장돼 있어요."));
+  return (
+    <DataGate>
+      {({ memories, clues }) => <JourneyView memories={memories} clues={clues} />}
+    </DataGate>
+  );
+}
 
-  const memories = useMemories();
-  const clues = useClues();
+function JourneyView({ memories, clues }: { memories: Memory[]; clues: Clue[] }) {
   const [showAllClues, setShowAllClues] = useState(false);
 
   const open = unopenedClues(clues, memories);

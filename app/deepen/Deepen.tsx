@@ -2,10 +2,10 @@
 
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { use, useState } from "react";
-import { browser } from "react-dom";
+import { useState } from "react";
 import { BackLink } from "@/components/BackLink";
 import Chip from "@/components/Chip";
+import DataGate from "@/components/DataGate";
 import LinedTextarea from "@/components/LinedTextarea";
 import MissingMemory from "@/components/MissingMemory";
 import PageHeader from "@/components/PageHeader";
@@ -21,35 +21,41 @@ import {
   getQuestion,
   type Source,
 } from "@/data/questions";
-import { loadDetails, saveDetail, updateMemory } from "@/lib/storage";
-import type { Memory } from "@/lib/types";
-import { useMemories } from "@/lib/useStored";
+import { SaveError, saveDetail, updateMemory } from "@/lib/storage";
+import type { Memory, MemoryDetail } from "@/lib/types";
 
 const ANSWER_MAX = 200;
 
 export default function Deepen() {
-  use(browser("기억은 브라우저(localStorage)에 저장돼 있어요."));
   const id = useSearchParams().get("id");
   const { bfcacheId } = useRouter();
-  const memory = useMemories().find((m) => m.id === id);
 
-  if (!memory) return <MissingMemory title="더 떠올려 보기" />;
-  return <DeepenCards key={`${bfcacheId}-${memory.id}`} memory={memory} />;
+  return (
+    <DataGate>
+      {({ memories, details }) => {
+        const memory = memories.find((m) => m.id === id);
+        if (!memory) return <MissingMemory title="더 떠올려 보기" />;
+        return (
+          <DeepenCards
+            key={`${bfcacheId}-${memory.id}`}
+            memory={memory}
+            details={details.filter((d) => d.memory_id === memory.id)}
+          />
+        );
+      }}
+    </DataGate>
+  );
 }
 
-/** 이미 답한 적이 있으면 그 답으로 칸을 채워요 */
-function savedAnswer(memoryId: string, questionId: string): string {
-  const d = loadDetails().find((x) => x.memory_id === memoryId && x.question_id === questionId);
-  return d?.answer ?? "";
-}
-
-function DeepenCards({ memory }: { memory: Memory }) {
+function DeepenCards({ memory, details }: { memory: Memory; details: MemoryDetail[] }) {
   const router = useRouter();
   const [step, setStep] = useState(0);
   // 단계마다 물을 질문. "다른 걸 떠올려 볼래요"로 바꿀 수 있어요.
   const [slots, setSlots] = useState(DEFAULT_DETAIL_IDS);
-  const [answer, setAnswer] = useState(() => savedAnswer(memory.id, DEFAULT_DETAIL_IDS[0]));
+  const [answer, setAnswer] = useState(() => savedAnswer(DEFAULT_DETAIL_IDS[0]));
   const [source, setSource] = useState<Source | null>(memory.source);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
 
   const questionId = slots[step];
   const question = getQuestion(questionId)!;
@@ -57,29 +63,51 @@ function DeepenCards({ memory }: { memory: Memory }) {
   const isLast = step === slots.length - 1;
   const organizeHref = `/organize?id=${memory.id}`;
 
-  function goTo(nextStep: number, nextSlots = slots) {
-    setStep(nextStep);
-    setAnswer(savedAnswer(memory.id, nextSlots[nextStep]));
+  /** 이미 답한 적이 있으면 그 답으로 칸을 채워요 */
+  function savedAnswer(qid: string): string {
+    return details.find((d) => d.question_id === qid)?.answer ?? "";
+  }
+
+  /** 저장하는 동안 버튼을 잠그고, 실패하면 안내를 보여줘요 */
+  async function saving(work: () => Promise<void>): Promise<boolean> {
+    setBusy(true);
+    setError("");
+    try {
+      await work();
+      return true;
+    } catch (e) {
+      setError(e instanceof SaveError ? e.message : "저장하지 못했어요. 다시 해 주세요.");
+      return false;
+    } finally {
+      setBusy(false);
+    }
   }
 
   /** "잘 모르겠어요" (답 없이 저장) 또는 "다음" (답 저장) */
-  function advance(dontKnow: boolean) {
+  async function advance(dontKnow: boolean) {
     const text = answer.trim();
-    if (dontKnow) saveDetail(memory.id, questionId, null);
-    else if (text) saveDetail(memory.id, questionId, text);
-    goTo(Math.min(step + 1, slots.length - 1));
+    const ok = await saving(async () => {
+      if (dontKnow) await saveDetail(memory.id, questionId, null);
+      else if (text) await saveDetail(memory.id, questionId, text);
+    });
+    if (!ok) return;
+    const nextStep = Math.min(step + 1, slots.length - 1);
+    setStep(nextStep);
+    setAnswer(savedAnswer(slots[nextStep]));
   }
 
   function pickAlt(altId: string) {
     const next = [...slots];
     next[step] = slots[step] === altId ? DEFAULT_DETAIL_IDS[step] : altId;
     setSlots(next);
-    setAnswer(savedAnswer(memory.id, next[step]));
+    setAnswer(savedAnswer(next[step]));
   }
 
-  function finish() {
-    if (source) updateMemory(memory.id, { source });
-    router.push(organizeHref);
+  async function finish() {
+    const ok = await saving(async () => {
+      if (source && source !== memory.source) await updateMemory(memory.id, { source });
+    });
+    if (ok) router.push(organizeHref);
   }
 
   // 지금 다른 칸에서 이미 묻고 있는 질문은 빼고 보여줘요
@@ -149,23 +177,39 @@ function DeepenCards({ memory }: { memory: Memory }) {
           </div>
         )}
 
+        {error && (
+          <p role="alert" className="mt-3 rounded-row bg-sand px-4 py-3 text-ui text-sand-ink">
+            {error}
+          </p>
+        )}
+
         <div className="flex gap-2.5 pt-4">
           {isLast ? (
             <>
               <Link href={organizeHref} className={pairLeftButton}>
                 건너뛰기
               </Link>
-              <button type="button" onClick={finish} className={pairRightButton}>
+              <button type="button" onClick={finish} disabled={busy} className={pairRightButton}>
                 기억 정리하기
               </button>
             </>
           ) : (
             <>
-              <button type="button" onClick={() => advance(true)} className={pairLeftButton}>
+              <button
+                type="button"
+                onClick={() => advance(true)}
+                disabled={busy}
+                className={pairLeftButton}
+              >
                 잘 모르겠어요
               </button>
-              <button type="button" onClick={() => advance(false)} className={pairRightButton}>
-                다음
+              <button
+                type="button"
+                onClick={() => advance(false)}
+                disabled={busy}
+                className={pairRightButton}
+              >
+                {busy ? "저장 중…" : "다음"}
               </button>
             </>
           )}

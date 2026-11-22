@@ -2,23 +2,36 @@
 
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { use } from "react";
-import { browser } from "react-dom";
 import { BackLink, CloseLink } from "@/components/BackLink";
 import BranchCard from "@/components/BranchCard";
+import DataGate from "@/components/DataGate";
 import MissingMemory from "@/components/MissingMemory";
 import PageHeader from "@/components/PageHeader";
 import Seed from "@/components/Seed";
 import { outlineButton, textLink } from "@/components/ui";
 import { branchOptionsForClue, branchOptionsForMemory, type BranchOption } from "@/lib/prompts";
-import { useClues, useMemories } from "@/lib/useStored";
+import type { Clue, Memory } from "@/lib/types";
 
 export default function Branch() {
-  use(browser("기억은 브라우저(localStorage)에 저장돼 있어요."));
   const params = useSearchParams();
-  const memories = useMemories();
-  const clues = useClues();
+  return (
+    <DataGate>
+      {({ memories, clues }) => (
+        <BranchChoice params={params} memories={memories} clues={clues} />
+      )}
+    </DataGate>
+  );
+}
 
+function BranchChoice({
+  params,
+  memories,
+  clues,
+}: {
+  params: URLSearchParams;
+  memories: Memory[];
+  clues: Clue[];
+}) {
   const clueId = params.get("clue");
   if (clueId) {
     const clue = clues.find((c) => c.id === clueId);

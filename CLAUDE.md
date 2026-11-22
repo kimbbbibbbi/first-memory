@@ -31,9 +31,18 @@ Next.js 16은 예전 버전과 API가 다를 수 있으니, 코드를 쓰기 전
 ### 주의: 화면 상태 유지 (Cache Components)
 
 이 프로젝트는 Cache Components가 켜져 있어서, 화면을 떠나도 이전 화면이 숨겨진 채 상태 그대로 남는다(React Activity).
-- 저장된 데이터는 `lib/useStored.ts`의 훅(`useMemories()` 등)으로 읽는다. `useState(loadMemories)`처럼 한 번만 읽으면 다른 화면에서 바꾼 내용이 반영되지 않는다.
+- 내 데이터(기억·답·실마리·별명)는 `lib/useStored.ts`의 `useMyData()` 한곳에 모아 두고, 화면은 `components/DataGate.tsx`로 감싸서 읽는다. 저장 함수(`lib/storage.ts`)는 저장 뒤 `refreshMyData()`로 다시 불러와 모든 화면이 새 내용을 보게 한다.
 - 들어올 때마다 새로 시작해야 하는 화면(기억 쓰기 등)은 `useRouter().bfcacheId`를 key에 넣어 초기화한다.
-- localStorage를 읽는 컴포넌트는 `use(browser(...))`(React 19.3)를 쓰고, 페이지에서 `<Suspense>`로 감싼다.
+- `useSearchParams`를 쓰는 화면은 페이지에서 `<Suspense>`로 감싼다.
+
+### Supabase (2026-11-23부터)
+
+- 설계도: `supabase/schema.sql` (표 6개 + RLS + 함수). Supabase SQL Editor에서 사용자가 직접 실행한다. 바꿀 때는 새 SQL을 따로 만들어 안내한다.
+- 연결: `lib/supabase/client.ts` (공개용 키만). 로그인 확인·길 안내: `proxy.ts` (Next 16의 middleware).
+- 가입·로그인·별명: `lib/auth.ts`, 화면 `app/login`, `app/signup`, `app/settings`.
+- 다른 사람에게 보이는 것은 `get_feed()` 함수뿐이다: 본문, 별명, 질문 번호(질문 종류 표시용), 공감 수. `memories` 표는 RLS로 쓴 사람만 읽는다. 함께 보기 코드는 `lib/feed.ts`, `app/together`.
+- 사용자가 바꿀 수 없는 칸: `memories.hidden`, `shared_at`, `user_id`(칸 단위 권한으로 막음). 새 기억은 DB가 `private`로만 받는다.
+- 환경변수: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` (`.env.local`, Vercel). `secret`/`service_role` 키는 절대 쓰지 않는다.
 
 ## 실행 명령
 
@@ -41,7 +50,7 @@ Next.js 16은 예전 버전과 API가 다를 수 있으니, 코드를 쓰기 전
 - `npm run build` — 배포용 빌드 (오류 확인용으로도 사용)
 - `npm run lint` — 코드 검사
 
-배포: GitHub `kimbbbibbbi/first-memory`의 main 브랜치에 올리면 Vercel이 자동으로 다시 배포한다. 주소는 https://first-memory-silk.vercel.app (2026-11-22). 환경변수는 아직 없다.
+배포: GitHub `kimbbbibbbi/first-memory`의 main 브랜치에 올리면 Vercel이 자동으로 다시 배포한다. 주소는 https://first-memory-silk.vercel.app (2026-11-22). 환경변수 2개(Supabase 주소·공개용 키)를 Vercel에도 넣어 두었다.
 
 프로젝트 위치는 외장 디스크의 `/Volumes/EX/projects/first-memory`다 (2026-11-22에 `~/projects/first-memory`에서 옮김). 네이버 MYBOX(클라우드 동기화 폴더)에는 만들지 않는다. 외장 디스크가 연결돼 있어야 작업할 수 있다.
 
@@ -88,9 +97,9 @@ Next.js 16은 예전 버전과 API가 다를 수 있으니, 코드를 쓰기 전
 | reactions | id, memory_id, user_id, created_at |
 | reports | id, memory_id, reporter_id, reason, created_at |
 
-1단계에서는 같은 모양으로 브라우저(localStorage)에 저장한다.
-- memories에는 기획서에 없는 `question_text`(쓸 때 보였던 질문 문장)를 함께 저장한다. 이어가기 질문은 실마리를 넣어 만든 문장이라 나중에도 그대로 보여주기 위해서다. 2단계 DB에도 이 칸을 만든다.
-- 질문 데이터: `data/questions.ts`, 조사 처리: `lib/josa.ts`, 질문 고르기 규칙: `lib/prompts.ts`, 저장: `lib/storage.ts`(예전 기억 옮기기 포함)
+2026-11-23부터 Supabase에 저장한다 (localStorage 방식은 없앴다). 기획서와 다른 점: `users` 대신 별명만 있는 `profiles`(이메일 복사 안 함), `questions` 표 없음(코드 파일), `memories`에 `question_text`·`shared_at`·`hidden` 추가, `memory_details`·`clues`에 `user_id` 추가.
+- `question_text`(쓸 때 보였던 질문 문장)는 이어가기 질문에 실마리가 들어 있어서 공유하지 않는다.
+- 질문 데이터: `data/questions.ts`, 조사 처리: `lib/josa.ts`, 질문 고르기 규칙: `lib/prompts.ts`, 저장: `lib/storage.ts`
 - 화면 주소: `/write`(기억 쓰기) → `/deepen?id=`(더 떠올려 보기) → `/organize?id=`(기억 정리) → `/branch?id=` 또는 `/branch?clue=`(이어서 떠올리기)
 
 ## 개발 순서
@@ -121,7 +130,17 @@ Next.js 16은 예전 버전과 API가 다를 수 있으니, 코드를 쓰기 전
   | 숫자로 고르기 | 기본은 나이 하나(age_from = age_to). "범위로 고르기"를 누르면 끝 나이 칸이 생기고, "나이 하나로"로 되돌린다. (0~19, 2026-11-12) | |
 - **공유 스위치·사진 추가(1단계)** — 2026-11-12: 시안 자리에 보여주되 누를 수 없게(비활성) 하고 "곧 열려요" 안내를 단다. 공유 스위치는 꺼진 상태로 고정이고, 1단계의 모든 기억은 `private`이다.
 - **실마리 고르기** — 2026-11-12: 구체화 답을 실마리 후보 칩으로 제안한다(예: "누가 함께 있었나요?" 답 "할머니" → "할머니 · 사람"). 누르면 실마리가 되고, 입력창에 직접 적어 종류를 골라 추가할 수도 있다. 최대 5개.
-- **예전에 저장된 기억** — 2026-11-12: 새 구조로 옮긴다. 본문과 나이는 그대로 두고, 예전 질문(q0-1 등)은 비슷한 출발·주제 질문으로 연결한다.
+- **2·3단계 결정** — 2026-11-22:
+  - 로그인: 이메일 + 비밀번호(8자 이상). 가입 때 이메일·비밀번호·별명을 받는다. 이메일 확인은 끔(Supabase 설정). 링크를 아는 누구나 가입할 수 있다.
+  - 별명: 2~12자, 앞뒤 띄어쓰기 제외, 대소문자만 다른 것도 같은 별명으로 보고 겹치면 안 된다. 다른 사람에게는 별명만 보인다.
+  - 이메일은 어떤 화면에도(내 설정에도) 보이지 않는다. `profiles` 표에 복사하지 않고 Supabase 로그인 시스템 안에만 둔다.
+  - 저장은 처음부터 서버(Supabase). localStorage 방식은 없애고 기존 기록은 옮기지 않는다.
+  - 함께 보기에 보이는 것: 본문 + 별명 + 질문 종류("출발 질문", 주제 이름 등) + 공감 수. 나이·출처·실마리·구체화 답은 안 보인다.
+  - 함께 보기는 **로그인하지 않은 사람도 읽을 수 있다.** 공감과 신고는 로그인해야 한다.
+  - 신고: 이유는 "개인정보가 있어요 / 불쾌하거나 상처 주는 내용이에요 / 기타" 중 고른다. 서로 다른 3명이 신고하면 자동으로 숨긴다. 운영자는 Supabase 화면에서 확인하고 되돌린다.
+  - 질문 48개는 DB 표로 옮기지 않고 `data/questions.ts`에 둔다.
+  - 설정 화면: 별명 바꾸기, 로그아웃. 내보내기·계정 삭제는 4단계.
+- **예전에 저장된 기억** — 2026-11-12: 새 구조로 옮긴다. (2026-11-22: 서버 저장으로 바꾸면서 더 이상 옮기지 않는다) 본문과 나이는 그대로 두고, 예전 질문(q0-1 등)은 비슷한 출발·주제 질문으로 연결한다.
 
 ## 작업 방식
 

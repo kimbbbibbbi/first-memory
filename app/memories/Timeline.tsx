@@ -1,16 +1,16 @@
 "use client";
 
 import Link from "next/link";
-import { use, useMemo, useState } from "react";
-import { browser } from "react-dom";
+import { useMemo, useState } from "react";
 import Chip from "@/components/Chip";
+import DataGate from "@/components/DataGate";
 import MemoryCard from "@/components/MemoryCard";
 import Seed from "@/components/Seed";
 import { PlusIcon } from "@/components/icons";
 import { textLink } from "@/components/ui";
 import { memoryOrigin } from "@/lib/prompts";
 import { deleteMemory, sortByAge } from "@/lib/storage";
-import { useClues, useMemories } from "@/lib/useStored";
+import type { Clue, Memory } from "@/lib/types";
 
 const FILTERS = [
   { id: "all", label: "전체" },
@@ -21,10 +21,14 @@ const FILTERS = [
 type Filter = (typeof FILTERS)[number]["id"];
 
 export default function Timeline() {
-  use(browser("기억은 브라우저(localStorage)에 저장돼 있어요."));
+  return (
+    <DataGate>
+      {({ memories, clues }) => <TimelineView stored={memories} clues={clues} />}
+    </DataGate>
+  );
+}
 
-  const stored = useMemories();
-  const clues = useClues();
+function TimelineView({ stored, clues }: { stored: Memory[]; clues: Clue[] }) {
   const [filter, setFilter] = useState<Filter>("all");
 
   const memories = useMemo(() => sortByAge(stored), [stored]);
@@ -55,7 +59,9 @@ export default function Timeline() {
 
       {shown.length === 0 ? (
         <p className="px-7 pt-16 text-center text-ui text-ink-sub">
-          아직 공유한 기억이 없어요. 공유는 곧 열려요.
+          {filter === "shared"
+            ? "아직 공유한 기억이 없어요. 기억 정리에서 공유를 켤 수 있어요."
+            : "나만 보는 기억이 없어요."}
         </p>
       ) : (
         <div className="relative pt-5 pr-5 pl-11">
