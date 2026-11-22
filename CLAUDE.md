@@ -41,6 +41,8 @@ Next.js 16은 예전 버전과 API가 다를 수 있으니, 코드를 쓰기 전
 - `npm run build` — 배포용 빌드 (오류 확인용으로도 사용)
 - `npm run lint` — 코드 검사
 
+배포: GitHub `kimbbbibbbi/first-memory`의 main 브랜치에 올리면 Vercel이 자동으로 다시 배포한다. 주소는 https://first-memory-silk.vercel.app (2026-11-22). 환경변수는 아직 없다.
+
 프로젝트 위치는 외장 디스크의 `/Volumes/EX/projects/first-memory`다 (2026-11-22에 `~/projects/first-memory`에서 옮김). 네이버 MYBOX(클라우드 동기화 폴더)에는 만들지 않는다. 외장 디스크가 연결돼 있어야 작업할 수 있다.
 
 ## 꼭 지킬 규칙
