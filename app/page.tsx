@@ -39,6 +39,12 @@ export default function Home() {
           <LockIcon size={14} />
           기록은 기본 비공개예요. 공유는 내가 고를 때만.
         </p>
+        <Link
+          href="/privacy"
+          className="flex h-11 items-center px-2 text-caption text-ink-sub underline hover:text-ink"
+        >
+          개인정보 처리방침
+        </Link>
       </div>
     </main>
   );

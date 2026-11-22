@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { PASSWORD_MIN, safeNext, signIn, signUp } from "@/lib/auth";
 import { NICKNAME_MAX, NICKNAME_MIN } from "@/lib/nickname";
+import PasswordInput from "./PasswordInput";
 import Seed from "./Seed";
 import { primaryButton, textLink } from "./ui";
 
@@ -17,7 +18,9 @@ export default function AuthForm({ mode }: { mode: "login" | "signup" }) {
   const next = useSearchParams().get("next");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [passwordAgain, setPasswordAgain] = useState("");
   const [nickname, setNickname] = useState("");
+  const [agreed, setAgreed] = useState(false);
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
 
@@ -27,8 +30,14 @@ export default function AuthForm({ mode }: { mode: "login" | "signup" }) {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    setBusy(true);
     setError("");
+    if (isSignup && password !== passwordAgain) {
+      return setError("비밀번호와 비밀번호 확인이 달라요. 다시 적어 주세요.");
+    }
+    if (isSignup && !agreed) {
+      return setError("만 14세 이상이고 개인정보 처리방침에 동의해야 가입할 수 있어요.");
+    }
+    setBusy(true);
     const problem = isSignup
       ? await signUp(email, password, nickname)
       : await signIn(email, password);
@@ -85,20 +94,46 @@ export default function AuthForm({ mode }: { mode: "login" | "signup" }) {
             required
           />
         </div>
-        <div className="flex flex-col gap-1.5">
-          <label htmlFor="password" className="text-caption text-ink-sub">
-            비밀번호{isSignup ? ` (${PASSWORD_MIN}자 이상)` : ""}
-          </label>
-          <input
-            id="password"
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            autoComplete={isSignup ? "new-password" : "current-password"}
-            className={inputClass}
-            required
+        <PasswordInput
+          id="password"
+          label={isSignup ? `비밀번호 (${PASSWORD_MIN}자 이상)` : "비밀번호"}
+          value={password}
+          onChange={setPassword}
+          autoComplete={isSignup ? "new-password" : "current-password"}
+        />
+        {isSignup && (
+          <PasswordInput
+            id="password-again"
+            label="비밀번호 확인"
+            value={passwordAgain}
+            onChange={setPasswordAgain}
+            autoComplete="new-password"
           />
-        </div>
+        )}
+        {isSignup && passwordAgain && password !== passwordAgain && (
+          <p className="-mt-2 text-caption text-sand-ink" aria-live="polite">
+            비밀번호와 다르게 적혔어요.
+          </p>
+        )}
+
+        {isSignup && (
+          <label className="flex min-h-11 items-start gap-2.5 rounded-row bg-card px-4 py-3 text-sm text-ink">
+            <input
+              type="checkbox"
+              checked={agreed}
+              onChange={(e) => setAgreed(e.target.checked)}
+              aria-label="[필수] 만 14세 이상이며, 개인정보 처리방침을 읽고 동의해요"
+              className="mt-0.5 size-5 shrink-0 accent-primary"
+            />
+            <span>
+              [필수] 만 14세 이상이며,{" "}
+              <Link href="/privacy" target="_blank" className="text-primary underline">
+                개인정보 처리방침
+              </Link>
+              을 읽고 동의해요.
+            </span>
+          </label>
+        )}
 
         {error && (
           <p role="alert" className="rounded-row bg-sand px-4 py-3 text-ui text-sand-ink">

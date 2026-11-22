@@ -7,7 +7,8 @@ import { supabase } from "./supabase/client";
 import { cleanNickname, nicknameProblem } from "./nickname";
 import { resetMyData } from "./useStored";
 
-export const PASSWORD_MIN = 8;
+/** Supabase가 허락하는 가장 짧은 길이 (Authentication 설정의 Minimum password length와 같게) */
+export const PASSWORD_MIN = 6;
 
 /** 로그인 뒤 돌아갈 곳. 우리 앱 안의 주소만 허락해요. */
 export function safeNext(next: string | null, fallback: string): string {
@@ -60,6 +61,29 @@ export async function signIn(email: string, password: string) {
 export async function signOut() {
   await supabase().auth.signOut();
   resetMyData();
+}
+
+/**
+ * 계정 삭제: 비밀번호가 맞는지 먼저 확인한 뒤, 데이터베이스의 delete_my_account 함수로 지워요.
+ * 계정과 기억·답·실마리·공감·신고가 모두 지워지고 되돌릴 수 없어요.
+ * (이메일은 확인용으로만 쓰고 화면에 보여 주지 않아요)
+ */
+export async function deleteAccount(password: string) {
+  if (!password) return "비밀번호를 적어 주세요.";
+  const db = supabase();
+  const { data } = await db.auth.getUser();
+  const email = data.user?.email;
+  if (!email) return "다시 로그인해 주세요.";
+
+  const check = await db.auth.signInWithPassword({ email, password });
+  if (check.error) return "비밀번호가 맞지 않아요.";
+
+  const { error } = await db.rpc("delete_my_account");
+  if (error) return "계정을 지우지 못했어요. 잠시 뒤에 다시 해 주세요.";
+
+  await db.auth.signOut({ scope: "local" });
+  resetMyData();
+  return null;
 }
 
 /** 내 별명 바꾸기 */

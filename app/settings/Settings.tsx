@@ -1,19 +1,45 @@
 "use client";
 
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import DataGate from "@/components/DataGate";
-import { outlineButton, primaryButton } from "@/components/ui";
-import { changeNickname, signOut } from "@/lib/auth";
+import PasswordInput from "@/components/PasswordInput";
+import Seed from "@/components/Seed";
+import { outlineButton, primaryButton, textLink } from "@/components/ui";
+import { changeNickname, deleteAccount, signOut } from "@/lib/auth";
 import { NICKNAME_MAX, NICKNAME_MIN } from "@/lib/nickname";
 import { refreshMyData } from "@/lib/useStored";
 
-/** 설정: 별명 바꾸기, 로그아웃 (이메일은 보여 주지 않아요) */
+/** 설정: 별명 바꾸기, 로그아웃, 계정 삭제 (이메일은 보여 주지 않아요) */
 export default function Settings() {
-  return <DataGate>{({ nickname }) => <SettingsForm current={nickname ?? ""} />}</DataGate>;
+  const [deleted, setDeleted] = useState(false);
+
+  if (deleted) {
+    return (
+      <main className="flex flex-1 flex-col items-center justify-center gap-3 px-7 text-center">
+        <Seed size={56} />
+        <p role="status" className="font-batang text-card-question font-bold">
+          계정을 지웠어요
+        </p>
+        <p className="text-ui text-ink-sub">그동안 쓴 기억과 함께 모두 지워졌어요. 고마웠어요.</p>
+        <Link href="/" className={textLink}>
+          처음 화면으로
+        </Link>
+      </main>
+    );
+  }
+
+  return (
+    <DataGate>
+      {({ nickname }) => (
+        <SettingsForm current={nickname ?? ""} onDeleted={() => setDeleted(true)} />
+      )}
+    </DataGate>
+  );
 }
 
-function SettingsForm({ current }: { current: string }) {
+function SettingsForm({ current, onDeleted }: { current: string; onDeleted: () => void }) {
   const router = useRouter();
   const [nickname, setNickname] = useState(current);
   const [message, setMessage] = useState<{ kind: "ok" | "error"; text: string } | null>(null);
@@ -82,10 +108,94 @@ function SettingsForm({ current }: { current: string }) {
         <button type="button" onClick={handleSignOut} disabled={busy} className={outlineButton}>
           로그아웃
         </button>
-        <p className="text-center text-caption text-ink-sub">
-          내보내기와 계정 삭제는 곧 열려요.
-        </p>
+        <Link href="/privacy" className={textLink}>
+          개인정보 처리방침
+        </Link>
       </div>
+
+      <DeleteAccount onDeleted={onDeleted} />
     </main>
+  );
+}
+
+/** 계정 삭제: 비밀번호를 다시 적어야 지워져요 */
+function DeleteAccount({ onDeleted }: { onDeleted: () => void }) {
+  const [open, setOpen] = useState(false);
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [busy, setBusy] = useState(false);
+
+  async function handleDelete(e: React.FormEvent) {
+    e.preventDefault();
+    setBusy(true);
+    setError("");
+    const problem = await deleteAccount(password);
+    setBusy(false);
+    if (problem) return setError(problem);
+    onDeleted();
+  }
+
+  if (!open) {
+    return (
+      <button
+        type="button"
+        onClick={() => setOpen(true)}
+        className="flex h-11 items-center justify-center self-center px-3 text-sm text-ink-sub underline hover:text-ink"
+      >
+        계정 삭제
+      </button>
+    );
+  }
+
+  return (
+    <form
+      onSubmit={handleDelete}
+      aria-labelledby="delete-title"
+      className="flex flex-col gap-3 rounded-card border border-sand-dashed bg-sand p-4"
+    >
+      <h2 id="delete-title" className="font-batang text-card-question-sm font-bold text-sand-ink">
+        계정 삭제
+      </h2>
+      <ul className="flex list-disc flex-col gap-1 pl-5 text-sm text-sand-ink">
+        <li>계정과 그동안 쓴 기억, 답, 실마리, 공감이 모두 바로 지워져요.</li>
+        <li>공유한 기억도 함께 보기에서 바로 사라져요.</li>
+        <li>지운 뒤에는 되돌릴 수 없어요.</li>
+      </ul>
+      <PasswordInput
+        id="delete-password"
+        label="확인을 위해 비밀번호를 다시 적어 주세요"
+        value={password}
+        onChange={(v) => {
+          setPassword(v);
+          setError("");
+        }}
+        autoComplete="current-password"
+      />
+      {error && (
+        <p role="alert" className="text-ui text-sand-ink">
+          {error}
+        </p>
+      )}
+      <div className="flex gap-2">
+        <button
+          type="button"
+          onClick={() => {
+            setOpen(false);
+            setPassword("");
+            setError("");
+          }}
+          className="flex h-12 flex-1 items-center justify-center rounded-row border border-chip-border bg-card text-ui text-ink"
+        >
+          취소
+        </button>
+        <button
+          type="submit"
+          disabled={busy || !password}
+          className="flex h-12 flex-1 items-center justify-center rounded-row bg-sand-ink text-ui text-card disabled:bg-off"
+        >
+          {busy ? "지우는 중…" : "영구 삭제"}
+        </button>
+      </div>
+    </form>
   );
 }
