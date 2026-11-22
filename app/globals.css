@@ -1,0 +1,91 @@
+@import "tailwindcss";
+
+/*
+ * 디자인 토큰 (DESIGN.md 1~3장)
+ * 여기에 이름을 붙여 둔 값만 화면에서 사용해요. 예: bg-paper, text-ink, rounded-card
+ */
+@theme {
+  /* 색 */
+  --color-paper: #faf6ec;
+  --color-card: #ffffff;
+  --color-ink: #2b2a26;
+  --color-ink-sub: #6f685a;
+  --color-primary: #3f5d4a;
+  --color-primary-hover: #2d4636;
+  --color-line: #e4dcc8;
+  --color-chip-border: #d9cfb8;
+  --color-sand: #f3e6cc;
+  --color-sand-ink: #6b5320;
+  --color-sand-dashed: #b9a67e;
+  --color-mist: #dde9df;
+  --color-mist-ink: #2d4636;
+  --color-segment-bg: #efe7d3;
+  --color-off: #b9b09d;
+  --color-photo-slot: #e8dec8;
+
+  /* 씨앗 캐릭터 색 */
+  --color-seed-leaf: #5e8a6a;
+  --color-seed-leaf-dark: #4a7557;
+  --color-seed-body: #e8cfa4;
+
+  /* 글자 크기 (크기 / 줄간격) */
+  --text-hero: 28px;
+  --text-hero--line-height: 1.5;
+  --text-question: 24px;
+  --text-question--line-height: 1.5;
+  --text-deepen-question: 22px;
+  --text-deepen-question--line-height: 1.5;
+  --text-notice: 20px;
+  --text-card-question-sm: 17px;
+  --text-card-question-sm--line-height: 1.5;
+  --text-scene: 15px;
+  --text-scene--line-height: 1.6;
+  --text-card-question: 19px;
+  --text-card-question--line-height: 1.5;
+  --text-header: 18px;
+  --text-memory: 16px;
+  --text-memory--line-height: 1.6;
+  --text-input: 17px;
+  --text-input--line-height: 32px;
+  --text-button: 17px;
+  --text-ui: 15px;
+  --text-tag: 12px;
+  --text-caption: 13px;
+  --text-tab: 11px;
+
+  /* 모서리 */
+  --radius-card: 16px;
+  --radius-card-lg: 20px;
+  --radius-row: 14px;
+  --radius-input: 12px;
+
+  /* 앱 화면 최대 폭 */
+  --container-app: 430px;
+}
+
+/* 글꼴: layout.tsx에서 불러온 고운바탕 / 고운돋움 */
+@theme inline {
+  --font-batang: var(--font-gowun-batang), serif;
+  --font-dodum: var(--font-gowun-dodum), sans-serif;
+}
+
+/* 줄 노트 입력창: 32px마다 가로줄 */
+@utility lined-paper {
+  background-color: transparent;
+  background-image: repeating-linear-gradient(
+    to bottom,
+    transparent 0,
+    transparent 31px,
+    var(--color-line) 31px,
+    var(--color-line) 32px
+  );
+  background-attachment: local;
+}
+
+body {
+  background: var(--color-paper);
+  color: var(--color-ink);
+  /* 한국어 단어가 줄 끝에서 중간에 잘리지 않게 */
+  word-break: keep-all;
+  overflow-wrap: anywhere;
+}

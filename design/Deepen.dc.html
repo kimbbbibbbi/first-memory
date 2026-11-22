@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>더 떠올려 보기</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+a{color:#3F5D4A}a:hover{color:#2D4636}
+textarea::placeholder{color:#6F685A}
+</style>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Gowun+Dodum&display=swap">
+</helmet>
+<div style="position: relative; width: 390px; height: 844px; box-sizing: border-box; background: #FAF6EC; overflow: hidden; font-family: 'Gowun Dodum', sans-serif; color: #2B2A26; display: flex; flex-direction: column">
+
+  <div style="height: 64px; padding: 12px 8px 0 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: space-between">
+    <a href="Write.dc.html" aria-label="뒤로" style="width: 48px; height: 48px; display: flex; align-items: center; justify-content: center">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#2B2A26" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>
+    </a>
+    <span style="font-family: 'Gowun Batang', serif; font-size: 18px; font-weight: 700">더 떠올려 보기</span>
+    <a href="Clue.dc.html" style="width: 64px; height: 48px; display: flex; align-items: center; justify-content: center; font-size: 14px; color: #6F685A; text-decoration: none">그만하기</a>
+  </div>
+
+  <div style="padding: 4px 24px 0; display: flex; flex-direction: column; gap: 8px">
+    <div style="display: flex; gap: 6px">
+      <sc-for list="{{ segs }}" as="seg" hint-placeholder-count="4">
+        <span style="flex: 1; height: 4px; border-radius: 2px; background: {{ seg.bg }}"></span>
+      </sc-for>
+    </div>
+    <span style="font-size: 13px; color: #6F685A">{{ stepLabel }}</span>
+  </div>
+
+  <div style="margin: 12px 24px 0; background: #F3E6CC; border-radius: 16px; padding: 14px 16px; display: flex; flex-direction: column; gap: 4px">
+    <span style="font-size: 12px; color: #6B5320">내가 쓴 장면</span>
+    <span style="font-family: 'Gowun Batang', serif; font-size: 15px; line-height: 1.6">할머니 집 마루에 햇빛이 길게 들어오던 장면</span>
+  </div>
+
+  <div style="padding: 24px 24px 0; display: flex; flex-direction: column; gap: 8px">
+    <span style="align-self: flex-start; height: 26px; padding: 0 10px; border-radius: 13px; background: #DDE9DF; color: #2D4636; font-size: 12px; display: flex; align-items: center">{{ cur.dim }}</span>
+    <p style="margin: 4px 0 0; font-family: 'Gowun Batang', serif; font-size: 22px; line-height: 1.5; font-weight: 700">{{ cur.q }}</p>
+    <p style="margin: 0; font-size: 14px; color: #6F685A">{{ cur.hint }}</p>
+  </div>
+
+  <sc-if value="{{ notSource }}" hint-placeholder-val="{{ true }}">
+    <div style="padding: 12px 24px 0">
+      <label for="detail-answer" style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0)">답</label>
+      <textarea id="detail-answer" rows="3" maxLength="200" value="{{ answer }}" onChange="{{ onAnswer }}" placeholder="짧게 적어도 괜찮아요." style="width: 100%; height: 96px; box-sizing: border-box; padding: 0 4px; border: 0; outline: none; resize: none; background-color: transparent; background-image: repeating-linear-gradient(to bottom, transparent 0, transparent 31px, #E4DCC8 31px, #E4DCC8 32px); background-attachment: local; font-family: 'Gowun Batang', serif; font-size: 17px; line-height: 32px; color: #2B2A26"></textarea>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ isSource }}" hint-placeholder-val="{{ false }}">
+    <div style="padding: 12px 24px 0; display: flex; flex-direction: column; gap: 8px">
+      <sc-for list="{{ srcItems }}" as="item" hint-placeholder-count="4">
+        <button type="button" onClick="{{ item.pick }}" style="height: 48px; padding: 0 16px; text-align: left; border-radius: 14px; font-family: 'Gowun Dodum', sans-serif; font-size: 15px; color: #2B2A26; background: {{ item.bg }}; border: {{ item.bw }} solid {{ item.bd }}">{{ item.label }}</button>
+      </sc-for>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ notLast }}" hint-placeholder-val="{{ true }}">
+    <div style="padding: 16px 24px 0; display: flex; gap: 10px">
+      <button type="button" onClick="{{ next }}" style="flex: 1; height: 52px; border-radius: 14px; border: 1px solid #D9CFB8; background: #FFFFFF; font-family: 'Gowun Dodum', sans-serif; font-size: 15px; color: #2B2A26">잘 모르겠어요</button>
+      <button type="button" onClick="{{ next }}" style="flex: 1; height: 52px; border-radius: 14px; border: 0; background: #3F5D4A; font-family: 'Gowun Dodum', sans-serif; font-size: 15px; color: #FFFFFF">다음</button>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ isLast }}" hint-placeholder-val="{{ false }}">
+    <div style="padding: 16px 24px 0; display: flex; gap: 10px">
+      <a href="Clue.dc.html" style="flex: 1; height: 52px; border-radius: 14px; border: 1px solid #D9CFB8; box-sizing: border-box; background: #FFFFFF; display: flex; align-items: center; justify-content: center; font-size: 15px; color: #2B2A26; text-decoration: none">건너뛰기</a>
+      <a href="Clue.dc.html" style="flex: 1; height: 52px; border-radius: 14px; background: #3F5D4A; display: flex; align-items: center; justify-content: center; font-size: 15px; color: #FFFFFF; text-decoration: none">기억 정리하기</a>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ notSource }}" hint-placeholder-val="{{ true }}">
+    <div style="padding: 24px 24px 0; display: flex; flex-direction: column; gap: 10px">
+      <span style="font-size: 13px; color: #6F685A">다른 걸 떠올려 볼래요</span>
+      <div style="display: flex; flex-wrap: wrap; gap: 8px">
+        <sc-for list="{{ altItems }}" as="item" hint-placeholder-count="4">
+          <button type="button" onClick="{{ item.pick }}" style="height: 36px; padding: 0 14px; border-radius: 18px; font-family: 'Gowun Dodum', sans-serif; font-size: 14px; background: {{ item.bg }}; color: {{ item.fg }}; border: 1px solid {{ item.bd }}">{{ item.label }}</button>
+        </sc-for>
+      </div>
+    </div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const st = this.state || {};
+    const step = st.step ?? 0;
+    const alt = st.alt ?? -1;
+    const src = st.src ?? -1;
+    const steps = [
+      { dim: '소리', q: '그때 어떤 소리가 들렸나요?', hint: '작은 소리도 괜찮아요.' },
+      { dim: '사람', q: '누가 함께 있었나요?', hint: '이름 대신 옆집 언니처럼 불러도 좋아요.' },
+      { dim: '마음', q: '그때 어떤 기분이었나요?', hint: '정확하지 않아도 괜찮아요.' },
+      { dim: '출처', q: '이 기억은 어떻게 남아 있나요?', hint: '맞고 틀림은 없어요. 기억의 결을 남겨 둬요.', source: true }
+    ];
+    const alts = [
+      { dim: '냄새·맛', q: '어떤 냄새가 났나요? 무엇을 먹고 있었나요?', hint: '지금도 떠오르는 냄새가 있다면요.' },
+      { dim: '촉감·온도', q: '덥거나 추웠나요? 손이나 발에 닿던 느낌은요?', hint: '바닥, 옷, 바람 같은 것도 좋아요.' },
+      { dim: '곳', q: '그 자리에서 둘러보면 무엇이 보이나요?', hint: '그때 내 눈높이에서 떠올려 보세요.' },
+      { dim: '시점', q: '함께 있던 사람의 눈으로 보면 어떻게 보일까요?', hint: '그 사람이 본 나를 상상해 봐요.' }
+    ];
+    const base = steps[step];
+    const cur = (!base.source && alt >= 0) ? alts[alt] : base;
+    const isLast = step === steps.length - 1;
+    const next = () => this.setState({ step: Math.min(step + 1, steps.length - 1), alt: -1, answer: '' });
+    return {
+      cur,
+      isLast,
+      notLast: !isLast,
+      isSource: !!base.source,
+      notSource: !base.source,
+      stepLabel: `질문 ${step + 1} / ${steps.length}`,
+      segs: steps.map((s, i) => ({ bg: i <= step ? '#3F5D4A' : '#E4DCC8' })),
+      altItems: alts.map((a, i) => ({
+        label: a.dim,
+        pick: () => this.setState({ alt: i }),
+        bg: i === alt ? '#3F5D4A' : '#FFFFFF',
+        fg: i === alt ? '#FFFFFF' : '#2B2A26',
+        bd: i === alt ? '#3F5D4A' : '#D9CFB8'
+      })),
+      srcItems: ['직접 기억나요', '사진이나 영상으로 봤어요', '가족에게 들은 이야기예요', '잘 모르겠어요'].map((label, i) => ({
+        label,
+        pick: () => this.setState({ src: i }),
+        bg: i === src ? '#F3E6CC' : '#FFFFFF',
+        bd: i === src ? '#3F5D4A' : '#D9CFB8',
+        bw: i === src ? '1.5px' : '1px'
+      })),
+      answer: st.answer ?? '',
+      onAnswer: (e) => this.setState({ answer: e.target.value }),
+      next
+    };
+  }
+}
+</script>
+</body>
+</html>
