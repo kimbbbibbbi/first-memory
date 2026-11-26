@@ -3,10 +3,13 @@
 import Link from "next/link";
 import { useState } from "react";
 import { REPORT_REASONS, report, setReaction, type FeedItem, type ReportReason } from "@/lib/feed";
-import { questionKind } from "@/lib/prompts";
+import { questionKind, sharedQuestionText } from "@/lib/prompts";
 import { HeartIcon } from "./icons";
 
-/** 함께 보기 카드: 별명, 질문 종류, 본문, 공감, 신고 (댓글은 없어요) */
+/**
+ * 함께 보기 카드: 별명, 질문 문장, 본문, 공감, 신고 (댓글은 없어요)
+ * 질문 문장은 출발·주제 질문만 보여줘요. 이어가기·자유 기록은 "이어진 기억", "자유 기록"만 보여줘요.
+ */
 export default function FeedCard({
   item,
   index,
@@ -25,7 +28,8 @@ export default function FeedCard({
   const [notice, setNotice] = useState("");
   const [busy, setBusy] = useState(false);
 
-  const avatarTone = index % 2 === 0 ? "bg-mist text-mist-ink" : "bg-sand text-sand-ink";
+  const question = sharedQuestionText(item.question_id);
+  const avatarTone =index % 2 === 0 ? "bg-mist text-mist-ink" : "bg-sand text-sand-ink";
   const loginHref = "/login?next=%2Ftogether";
 
   async function toggleReaction() {
@@ -67,9 +71,14 @@ export default function FeedCard({
           {item.nickname.slice(0, 1)}
         </span>
         <span className="text-ui">{item.nickname}</span>
-        <span className="text-caption text-ink-sub">· {questionKind(item.question_id)}</span>
+        {!question && (
+          <span className="text-caption text-ink-sub">· {questionKind(item.question_id)}</span>
+        )}
       </div>
 
+      {question && (
+        <p className="font-batang text-scene font-bold text-ink-sub">{question}</p>
+      )}
       <p className="font-batang text-memory whitespace-pre-line">{item.body}</p>
 
       <div className="flex items-center justify-between">

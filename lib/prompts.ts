@@ -278,6 +278,17 @@ export function questionKind(questionId: string | null): string {
   return "이어진 기억";
 }
 
+/**
+ * 함께 보기에 보여줄 질문 문장.
+ * 출발·주제 질문은 모두에게 같은 문장이라 그대로 보여줘요.
+ * 이어가기 질문에는 쓴 사람의 실마리가 들어 있어서(비공개) 문장을 보여주지 않아요 → null
+ */
+export function sharedQuestionText(questionId: string | null): string | null {
+  const q = getQuestion(questionId);
+  if (q && (q.layer === "start" || q.layer === "topic")) return q.text;
+  return null;
+}
+
 /** 기억을 짧게 부르는 이름 (제목, 없으면 본문 앞부분) */
 export function shortName(m: Memory): string {
   if (m.title) return m.title;
