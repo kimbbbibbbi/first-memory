@@ -4,8 +4,9 @@ import Link from "next/link";
 import { useState } from "react";
 import DataGate from "@/components/DataGate";
 import Seed from "@/components/Seed";
-import { TOPICS, clueTypeLabel } from "@/data/questions";
-import { nextTopicQuestion, suggestion, topicCounts } from "@/lib/prompts";
+import { CheckIcon, ChevronDownIcon } from "@/components/icons";
+import { TOPICS, clueTypeLabel, topicQuestions } from "@/data/questions";
+import { suggestion, topicCounts } from "@/lib/prompts";
 import { unopenedClues } from "@/lib/storage";
 import type { Clue, Memory } from "@/lib/types";
 
@@ -22,6 +23,14 @@ export default function Journey() {
 
 function JourneyView({ memories, clues }: { memories: Memory[]; clues: Clue[] }) {
   const [showAllClues, setShowAllClues] = useState(false);
+  // 펼쳐 둔 주제 (한 번에 하나만)
+  const [openTopic, setOpenTopic] = useState<string | null>(null);
+
+  // 질문마다 쓴 기억 수 (답한 질문 표시용)
+  const answeredCount = new Map<string, number>();
+  for (const m of memories) {
+    if (m.question_id) answeredCount.set(m.question_id, (answeredCount.get(m.question_id) ?? 0) + 1);
+  }
 
   const open = unopenedClues(clues, memories);
   const card = suggestion(memories, clues);
@@ -104,22 +113,67 @@ function JourneyView({ memories, clues }: { memories: Memory[]; clues: Clue[] })
           <span className="text-caption text-ink-sub">빈 주제부터 채워 보세요</span>
         </div>
         <ul className="flex flex-col gap-1">
-          {TOPICS.map((topic) => {
+          {TOPICS.map((topic, i) => {
             const count = counts[topic];
             const empty = count === 0;
+            const isOpen = openTopic === topic;
+            const listId = `topic-questions-${i}`;
             return (
-              <li key={topic}>
-                <Link
-                  href={`/write?q=${nextTopicQuestion(topic, memories).id}`}
-                  className={`flex h-11 items-center justify-between rounded-row px-4 hover:ring-1 hover:ring-primary ${
+              <li key={topic} className="flex flex-col">
+                {/* 주제 줄: 누르면 아래에 질문이 펼쳐져요 (한 번에 하나만) */}
+                <button
+                  type="button"
+                  aria-expanded={isOpen}
+                  aria-controls={listId}
+                  onClick={() => setOpenTopic(isOpen ? null : topic)}
+                  className={`flex h-11 items-center gap-2 rounded-row px-4 text-left hover:ring-1 hover:ring-primary ${
                     empty ? "bg-sand" : "bg-card"
-                  }`}
+                  } ${isOpen ? "rounded-b-none" : ""}`}
                 >
-                  <span className="text-ui">{topic}</span>
+                  <span className="flex-1 text-ui text-ink">{topic}</span>
                   <span className={`text-caption ${empty ? "text-sand-ink" : "text-ink-sub"}`}>
                     {empty ? "비어 있어요" : `기억 ${count}개`}
                   </span>
-                </Link>
+                  <span className={`text-ink-sub transition-transform ${isOpen ? "rotate-180" : ""}`}>
+                    <ChevronDownIcon size={16} />
+                  </span>
+                </button>
+
+                {isOpen && (
+                  <ul
+                    id={listId}
+                    aria-label={`${topic} 질문`}
+                    className="flex flex-col rounded-b-row border-t border-line bg-card px-2 pb-2"
+                  >
+                    {topicQuestions(topic).map((q) => {
+                      const answered = answeredCount.get(q.id) ?? 0;
+                      return (
+                        <li key={q.id}>
+                          <Link
+                            href={`/write?q=${q.id}`}
+                            className="flex min-h-11 items-center gap-2.5 rounded-row px-2 py-2.5 hover:bg-paper"
+                          >
+                            {answered > 0 ? (
+                              <span className="flex size-5 shrink-0 items-center justify-center rounded-full bg-primary text-card">
+                                <CheckIcon size={12} strokeWidth={3} />
+                                <span className="sr-only">답한 질문</span>
+                              </span>
+                            ) : (
+                              <span
+                                aria-hidden="true"
+                                className="size-5 shrink-0 rounded-full border-2 border-off"
+                              />
+                            )}
+                            <span className="flex-1 font-batang text-scene text-ink">{q.text}</span>
+                            {answered > 0 && (
+                              <span className="shrink-0 text-tag text-ink-sub">기억 {answered}개</span>
+                            )}
+                          </Link>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                )}
               </li>
             );
           })}

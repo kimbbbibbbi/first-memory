@@ -125,6 +125,12 @@ export const EyeOffIcon = (p: IconProps) => (
   </Svg>
 );
 
+export const ChevronDownIcon = (p: IconProps) => (
+  <Svg {...p}>
+    <path d="M5 9l7 7 7-7" />
+  </Svg>
+);
+
 export const ChevronRightIcon = (p: IconProps) => (
   <Svg {...p}>
     <path d="M9 5l7 7-7 7" />
