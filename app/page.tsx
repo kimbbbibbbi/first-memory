@@ -1,51 +1,50 @@
 import Link from "next/link";
+import AccountBar from "@/components/AccountBar";
 import Seed from "@/components/Seed";
 import { LockIcon } from "@/components/icons";
 import { primaryButton } from "@/components/ui";
 
-// 시작 화면 (시안 Main.dc.html)
+// 시작 화면 (시안 Main.dc.html). 맨 위 한 줄에서 로그인했는지 보여줘요.
 export default function Home() {
   return (
-    <main className="flex flex-1 flex-col items-center px-7 pt-18 pb-8">
-      <p className="font-batang text-xl font-bold tracking-[0.1em] text-primary">첫 기억</p>
+    <>
+      <AccountBar />
+      <main className="flex flex-1 flex-col items-center px-7 pt-20 pb-8">
+        <div className="flex flex-col items-center">
+          <Seed size={112} />
+          <h1 className="mt-7 mb-3 text-center font-batang text-hero font-bold">
+            당신의 가장 첫 기억은
+            <br />
+            무엇인가요?
+          </h1>
+          <p className="text-center text-base leading-relaxed text-ink-sub">
+            어렴풋해도 괜찮아요.
+            <br />한 장면이면 충분해요.
+          </p>
+        </div>
 
-      <div className="mt-24 flex flex-col items-center">
-        <Seed size={112} />
-        <h1 className="mt-7 mb-3 text-center font-batang text-hero font-bold">
-          당신의 가장 첫 기억은
-          <br />
-          무엇인가요?
-        </h1>
-        <p className="text-center text-base leading-relaxed text-ink-sub">
-          어렴풋해도 괜찮아요.
-          <br />한 장면이면 충분해요.
-        </p>
-      </div>
-
-      <div className="mt-auto flex w-full flex-col items-center gap-2 pt-10">
-        <Link
-          href="/write?q=s-1"
-          className={primaryButton}
-        >
-          첫 기억 쓰러 가기
-        </Link>
-        <Link
-          href="/together"
-          className="flex h-12 items-center justify-center text-ui text-primary underline hover:text-primary-hover"
-        >
-          다른 사람들의 첫 기억 먼저 보기
-        </Link>
-        <p className="mt-1 flex items-center gap-1.5 text-caption text-ink-sub">
-          <LockIcon size={14} />
-          기록은 기본 비공개예요. 공유는 내가 고를 때만.
-        </p>
-        <Link
-          href="/privacy"
-          className="flex h-11 items-center px-2 text-caption text-ink-sub underline hover:text-ink"
-        >
-          개인정보 처리방침
-        </Link>
-      </div>
-    </main>
+        <div className="mt-auto flex w-full flex-col items-center gap-2 pt-10">
+          <Link href="/write?q=s-1" className={primaryButton}>
+            첫 기억 쓰러 가기
+          </Link>
+          <Link
+            href="/together"
+            className="flex h-12 items-center justify-center text-ui text-primary underline hover:text-primary-hover"
+          >
+            다른 사람들의 첫 기억 먼저 보기
+          </Link>
+          <p className="mt-1 flex items-center gap-1.5 text-caption text-ink-sub">
+            <LockIcon size={14} />
+            기록은 기본 비공개예요. 공유는 내가 고를 때만.
+          </p>
+          <Link
+            href="/privacy"
+            className="flex h-11 items-center px-2 text-caption text-ink-sub underline hover:text-ink"
+          >
+            개인정보 처리방침
+          </Link>
+        </div>
+      </main>
+    </>
   );
 }

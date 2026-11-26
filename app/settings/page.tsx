@@ -1,15 +1,6 @@
-import type { Metadata } from "next";
-import { BackLink } from "@/components/BackLink";
-import PageHeader from "@/components/PageHeader";
-import Settings from "./Settings";
+import { redirect } from "next/navigation";
 
-export const metadata: Metadata = { title: "설정" };
-
+// 설정 화면은 마이페이지로 합쳤어요. 예전 주소로 들어오면 마이페이지로 보내요.
 export default function SettingsPage() {
-  return (
-    <>
-      <PageHeader title="설정" left={<BackLink href="/memories" />} />
-      <Settings />
-    </>
-  );
+  redirect("/mypage");
 }

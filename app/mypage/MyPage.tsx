@@ -9,10 +9,15 @@ import Seed from "@/components/Seed";
 import { outlineButton, primaryButton, textLink } from "@/components/ui";
 import { changeNickname, deleteAccount, signOut } from "@/lib/auth";
 import { NICKNAME_MAX, NICKNAME_MIN } from "@/lib/nickname";
+import { refreshAccount } from "@/lib/account";
+import type { Memory } from "@/lib/types";
 import { refreshMyData } from "@/lib/useStored";
 
-/** 설정: 별명 바꾸기, 로그아웃, 계정 삭제 (이메일은 보여 주지 않아요) */
-export default function Settings() {
+/**
+ * 마이페이지: 내 별명, 쓴 기억·공유 중 수, 내 기억 바로가기,
+ * 별명 바꾸기, 로그아웃, 처리방침, 계정 삭제 (이메일은 보여 주지 않아요)
+ */
+export default function MyPage() {
   const [deleted, setDeleted] = useState(false);
 
   if (deleted) {
@@ -32,18 +37,31 @@ export default function Settings() {
 
   return (
     <DataGate>
-      {({ nickname }) => (
-        <SettingsForm current={nickname ?? ""} onDeleted={() => setDeleted(true)} />
+      {({ nickname, memories }) => (
+        <MyPageView
+          current={nickname ?? ""}
+          memories={memories}
+          onDeleted={() => setDeleted(true)}
+        />
       )}
     </DataGate>
   );
 }
 
-function SettingsForm({ current, onDeleted }: { current: string; onDeleted: () => void }) {
+function MyPageView({
+  current,
+  memories,
+  onDeleted,
+}: {
+  current: string;
+  memories: Memory[];
+  onDeleted: () => void;
+}) {
   const router = useRouter();
   const [nickname, setNickname] = useState(current);
   const [message, setMessage] = useState<{ kind: "ok" | "error"; text: string } | null>(null);
   const [busy, setBusy] = useState(false);
+  const sharedCount = memories.filter((m) => m.visibility === "shared").length;
 
   async function handleSave(e: React.FormEvent) {
     e.preventDefault();
@@ -52,7 +70,7 @@ function SettingsForm({ current, onDeleted }: { current: string; onDeleted: () =
     const problem = await changeNickname(nickname);
     if (problem) setMessage({ kind: "error", text: problem });
     else {
-      await refreshMyData();
+      await Promise.all([refreshMyData(), refreshAccount()]);
       setMessage({ kind: "ok", text: "별명을 바꿨어요. 공유한 기억에도 새 별명이 보여요." });
     }
     setBusy(false);
@@ -67,9 +85,38 @@ function SettingsForm({ current, onDeleted }: { current: string; onDeleted: () =
 
   return (
     <main className="flex flex-1 flex-col gap-6 px-5 pt-2 pb-8">
+      {/* 내 정보 카드 */}
+      <section aria-label="내 정보" className="flex flex-col gap-4 rounded-card-lg bg-card p-5">
+        <div className="flex items-center gap-3">
+          <span
+            aria-hidden="true"
+            className="flex size-14 shrink-0 items-center justify-center rounded-full bg-mist font-batang text-question text-mist-ink"
+          >
+            {current.slice(0, 1)}
+          </span>
+          <div className="flex min-w-0 flex-col">
+            <span className="text-caption text-ink-sub">내 별명</span>
+            <span className="truncate font-batang text-card-question font-bold">{current}</span>
+          </div>
+        </div>
+        <dl className="grid grid-cols-2 gap-3">
+          <div className="flex flex-col gap-1 rounded-row bg-paper p-3">
+            <dt className="text-caption text-ink-sub">쓴 기억</dt>
+            <dd className="font-batang text-question font-bold">{memories.length}개</dd>
+          </div>
+          <div className="flex flex-col gap-1 rounded-row bg-paper p-3">
+            <dt className="text-caption text-ink-sub">공유 중</dt>
+            <dd className="font-batang text-question font-bold">{sharedCount}개</dd>
+          </div>
+        </dl>
+        <Link href="/memories" className={primaryButton}>
+          내 기억 보러 가기
+        </Link>
+      </section>
+
       <form onSubmit={handleSave} className="flex flex-col gap-3 rounded-card bg-card p-4">
         <label htmlFor="nickname" className="font-batang text-card-question-sm font-bold">
-          별명
+          별명 바꾸기
         </label>
         <p className="text-caption text-ink-sub">
           함께 보기에서 다른 사람에게 보이는 이름이에요. {NICKNAME_MIN}~{NICKNAME_MAX}자로 적어 주세요.

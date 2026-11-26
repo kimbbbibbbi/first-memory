@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import AccountBar from "@/components/AccountBar";
 import BottomTabs from "@/components/BottomTabs";
 import PageHeader from "@/components/PageHeader";
 import Feed from "./Feed";
@@ -10,6 +11,7 @@ export const metadata: Metadata = { title: "함께 보기" };
 export default function TogetherPage() {
   return (
     <>
+      <AccountBar />
       <PageHeader title="함께 보는 기억" />
       <Feed />
       <BottomTabs />
