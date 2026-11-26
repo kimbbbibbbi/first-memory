@@ -23,7 +23,7 @@ export default function MyPage() {
   if (deleted) {
     return (
       <main className="flex flex-1 flex-col items-center justify-center gap-3 px-7 text-center">
-        <Seed size={56} />
+        <Seed size={72} />
         <p role="status" className="font-batang text-card-question font-bold">
           계정을 지웠어요
         </p>

@@ -31,7 +31,7 @@ export default function ForgotForm() {
         첫 기억
       </Link>
       <div className="mt-8 flex flex-col items-center gap-2 text-center">
-        <Seed size={56} />
+        <Seed size={72} />
         <h1 className="font-batang text-question font-bold">비밀번호 찾기</h1>
         <p className="text-ui text-ink-sub">
           가입한 이메일로 비밀번호를 다시 정하는 링크를 보내 드려요.

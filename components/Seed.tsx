@@ -1,28 +1,21 @@
-// 캐릭터: 싹이 난 작은 씨앗 (DESIGN.md 6장)
-// 크기: 시작 화면 112, 질문 카드 56, 기억 쓰기 48
+import Image from "next/image";
 
-export default function Seed({ size = 56 }: { size?: number }) {
+// 캐릭터 "감자" (2026-11-26, 예전 씨앗 SVG 대신)
+// 원본: 프로젝트 폴더의 감자.png → 빈 여백을 자르고 가로 600px webp로 줄인 public/gamja.webp
+// size는 가로 크기(px)예요. 세로는 그림 비율(600 x 520)에 맞춰 정해져요.
+
+const RATIO = 520 / 600;
+
+export default function Seed({ size = 72 }: { size?: number }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 80 80" aria-hidden="true">
-      <path d="M40 18 C40 8 30 5 23 9 C25 17 33 20 40 18Z" className="fill-seed-leaf" />
-      <path d="M40 18 C40 8 50 5 57 9 C55 17 47 20 40 18Z" className="fill-seed-leaf-dark" />
-      <path
-        d="M40 18 L40 28"
-        className="stroke-seed-leaf-dark"
-        strokeWidth="2.5"
-        strokeLinecap="round"
-        fill="none"
-      />
-      <ellipse cx="40" cy="52" rx="22" ry="25" className="fill-seed-body" />
-      <circle cx="32" cy="50" r="2.6" className="fill-ink" />
-      <circle cx="48" cy="50" r="2.6" className="fill-ink" />
-      <path
-        d="M35 58 Q40 63 45 58"
-        className="stroke-ink"
-        strokeWidth="2"
-        strokeLinecap="round"
-        fill="none"
-      />
-    </svg>
+    <Image
+      src="/gamja.webp"
+      width={size}
+      height={Math.round(size * RATIO)}
+      alt=""
+      aria-hidden="true"
+      className="shrink-0 select-none"
+      draggable={false}
+    />
   );
 }

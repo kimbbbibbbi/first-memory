@@ -79,7 +79,7 @@ export default function Feed() {
 
       {items.length === 0 ? (
         <div className="flex flex-col items-center gap-3 pt-16 text-center">
-          <Seed size={56} />
+          <Seed size={72} />
           <p className="font-batang text-card-question font-bold">아직 나눈 기억이 없어요</p>
           <p className="text-ui text-ink-sub">첫 번째로 기억을 나눠 볼까요?</p>
           <Link href={loggedIn ? "/write?q=s-1" : "/signup"} className={textLink}>
