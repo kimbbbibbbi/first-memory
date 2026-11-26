@@ -30,7 +30,6 @@ function LoginNeeded() {
         <br />
         첫 기억을 볼 수 있어요
       </p>
-      <p className="text-ui text-ink-sub">나눈 기억에는 본문과 별명만 보여요.</p>
       <div className="mt-3 flex w-full flex-col">
         <Link href="/login?next=%2Ftogether" className={primaryButton}>
           로그인
