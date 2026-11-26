@@ -195,7 +195,20 @@ export const BRANCH_TEMPLATES: Question[] = [
 export const NEXT_SCENE_TEMPLATE_ID = "b-time-1";
 
 // ---- 주제 질문 ----
-export const TOPICS = ["집과 가족", "놀이와 친구", "맛과 냄새", "유치원·학교", "처음의 감정"] as const;
+export const TOPICS = [
+  "집과 가족",
+  "놀이와 친구",
+  "맛과 냄새",
+  "유치원·학교",
+  "처음의 감정",
+  // 2026-11-26 추가
+  "계절과 날씨",
+  "동네와 길",
+  "소리와 노래",
+  "물건과 장난감",
+  "동물과 자연",
+  "나들이와 특별한 날",
+] as const;
 export type Topic = (typeof TOPICS)[number];
 
 export const TOPIC_QUESTIONS: Question[] = [
@@ -215,6 +228,28 @@ export const TOPIC_QUESTIONS: Question[] = [
   { id: "t-feel-1", layer: "topic", dimension: "처음의 감정", text: "처음으로 무서웠던 일은 무엇이었나요?", sort_order: 1 },
   { id: "t-feel-2", layer: "topic", dimension: "처음의 감정", text: "처음으로 자랑스러웠던 일은 무엇이었나요?", sort_order: 2 },
   { id: "t-feel-3", layer: "topic", dimension: "처음의 감정", text: "처음 눈이나 바다를 본 날이 기억나나요?", sort_order: 3 },
+
+  // ---- 2026-11-26 추가한 주제 ----
+  { id: "t-season-1", layer: "topic", dimension: "계절과 날씨", text: "어린 시절 가장 기억나는 여름날은 어떤 날이었나요?", sort_order: 1 },
+  { id: "t-season-2", layer: "topic", dimension: "계절과 날씨", text: "어린 시절 가장 기억나는 겨울날은 어떤 날이었나요?", sort_order: 2 },
+  { id: "t-season-3", layer: "topic", dimension: "계절과 날씨", text: "어린 시절 가장 기억나는 가을날은 어떤 날이었나요?", sort_order: 3 },
+  { id: "t-season-4", layer: "topic", dimension: "계절과 날씨", text: "어린 시절 가장 기억나는 봄날은 어떤 날이었나요?", sort_order: 4 },
+  { id: "t-town-1", layer: "topic", dimension: "동네와 길", text: "어린 시절 자주 가던 가게는 어디였나요?", sort_order: 1 },
+  { id: "t-town-2", layer: "topic", dimension: "동네와 길", text: "동네에서 가장 좋아하던 곳은 어디였나요?", sort_order: 2 },
+  { id: "t-town-3", layer: "topic", dimension: "동네와 길", text: "문방구에서 가장 좋아하던 물건은 무엇이었나요?", sort_order: 3 },
+  { id: "t-town-4", layer: "topic", dimension: "동네와 길", text: "혼자서 처음 멀리 가 본 날이 기억나나요?", sort_order: 4 },
+  { id: "t-sound-1", layer: "topic", dimension: "소리와 노래", text: "어린 시절 자주 듣던 노래가 있나요?", sort_order: 1 },
+  { id: "t-sound-2", layer: "topic", dimension: "소리와 노래", text: "지금도 들으면 그때가 떠오르는 소리가 있나요?", sort_order: 2 },
+  { id: "t-sound-3", layer: "topic", dimension: "소리와 노래", text: "누군가 불러 주던 노래나 들려주던 이야기가 있나요?", sort_order: 3 },
+  { id: "t-thing-1", layer: "topic", dimension: "물건과 장난감", text: "가장 아끼던 장난감이나 물건은 무엇이었나요?", sort_order: 1 },
+  { id: "t-thing-2", layer: "topic", dimension: "물건과 장난감", text: "잃어버려서 아쉬웠던 물건이 있나요?", sort_order: 2 },
+  { id: "t-thing-3", layer: "topic", dimension: "물건과 장난감", text: "갖고 싶었지만 갖지 못했던 것이 있나요?", sort_order: 3 },
+  { id: "t-nature-1", layer: "topic", dimension: "동물과 자연", text: "처음 키워 본 동물이 기억나나요?", sort_order: 1 },
+  { id: "t-nature-2", layer: "topic", dimension: "동물과 자연", text: "자주 놀던 나무나 풀밭, 물가 같은 곳이 있었나요?", sort_order: 2 },
+  { id: "t-nature-3", layer: "topic", dimension: "동물과 자연", text: "가장 기억에 남는 동물이 있나요?", sort_order: 3 },
+  { id: "t-outing-1", layer: "topic", dimension: "나들이와 특별한 날", text: "기억이 나는 첫 여행지는 어디였나요?", sort_order: 1 },
+  { id: "t-outing-2", layer: "topic", dimension: "나들이와 특별한 날", text: "손꼽아 기다리던 날이 있었나요?", sort_order: 2 },
+  { id: "t-outing-3", layer: "topic", dimension: "나들이와 특별한 날", text: "학교 소풍 중 가장 기억에 남는 곳은 어디였나요?", sort_order: 3 },
 ];
 
 export const ALL_QUESTIONS: Question[] = [
