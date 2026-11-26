@@ -15,7 +15,9 @@ export default function Home() {
         <div className="flex flex-col items-center">
           <Seed size={112} />
           <h1 className="mt-7 mb-3 text-center font-batang text-hero font-bold">
-            당신의 가장 첫 기억은
+            당신이 기억하는
+            <br />
+            가장 첫 장면은
             <br />
             무엇인가요?
           </h1>

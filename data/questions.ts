@@ -41,7 +41,7 @@ export const START_QUESTIONS: Question[] = [
     id: "s-1",
     layer: "start",
     dimension: "출발",
-    text: "당신의 가장 첫 기억은 무엇인가요?",
+    text: "당신이 기억하는 가장 첫 장면은 무엇인가요?",
     hint: "어렴풋해도 괜찮아요. 한 장면이면 충분해요.",
     sort_order: 1,
   },
