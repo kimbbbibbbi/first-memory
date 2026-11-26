@@ -4,7 +4,6 @@
 // 다른 사람의 기억은 데이터베이스의 get_feed 함수로만 읽어요.
 // 이 함수는 본문, 별명, 질문 번호, 공감 수만 돌려줘요 (나이·출처·실마리·답·이메일은 없어요).
 
-import { useEffect, useState } from "react";
 import { supabase } from "./supabase/client";
 
 export interface FeedItem {
@@ -48,21 +47,4 @@ export async function report(memoryId: string, reason: ReportReason): Promise<"o
   if (error?.code === "23505") return "already";
   if (error) throw error;
   return "ok";
-}
-
-/** 로그인했는지 (공감·신고 버튼에 써요). 처음엔 null(확인 중) */
-export function useLoggedIn(): boolean | null {
-  const [loggedIn, setLoggedIn] = useState<boolean | null>(null);
-  useEffect(() => {
-    let alive = true;
-    supabase()
-      .auth.getClaims()
-      .then(({ data }) => {
-        if (alive) setLoggedIn(Boolean(data?.claims));
-      });
-    return () => {
-      alive = false;
-    };
-  }, []);
-  return loggedIn;
 }

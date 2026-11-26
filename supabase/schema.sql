@@ -350,7 +350,7 @@ create trigger reports_auto_hide
 -- ---------------------------------------------------------------------
 -- 7. 함께 보기 피드 — 다른 사람에게 보이는 유일한 통로
 -- ---------------------------------------------------------------------
--- 로그인하지 않은 사람도 읽을 수 있어요 (2026-11-22 결정).
+-- 로그인한 사람만 읽을 수 있어요 (2026-11-27 바뀜, 03_feed_login_only.sql. 예전엔 누구나).
 -- 돌려주는 것: 기억 번호, 본문, 별명, 질문 번호, 공감 수, 내가 공감했는지, 내 글인지.
 -- 나이·출처·제목·질문 문장·작성 시각·작성자 번호는 돌려주지 않아요.
 create function public.get_feed(p_limit integer default 20, p_offset integer default 0)
@@ -384,7 +384,7 @@ as $$
   offset greatest(p_offset, 0);
 $$;
 
-grant execute on function public.get_feed(integer, integer) to anon, authenticated;
+grant execute on function public.get_feed(integer, integer) to authenticated;
 
 
 -- ---------------------------------------------------------------------
@@ -401,5 +401,5 @@ revoke execute on function public.can_react(uuid) from public, anon;
 grant execute on function public.can_react(uuid) to authenticated;
 revoke execute on function public.nickname_available(text) from public;
 grant execute on function public.nickname_available(text) to anon, authenticated;
-revoke execute on function public.get_feed(integer, integer) from public;
-grant execute on function public.get_feed(integer, integer) to anon, authenticated;
+revoke execute on function public.get_feed(integer, integer) from public, anon;
+grant execute on function public.get_feed(integer, integer) to authenticated;

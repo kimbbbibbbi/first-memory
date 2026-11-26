@@ -2,6 +2,7 @@ import Link from "next/link";
 import AccountBar from "@/components/AccountBar";
 import BottomTabs from "@/components/BottomTabs";
 import Seed from "@/components/Seed";
+import TogetherLink from "@/components/TogetherLink";
 import { LockIcon } from "@/components/icons";
 import { primaryButton } from "@/components/ui";
 
@@ -31,12 +32,7 @@ export default function Home() {
           <Link href="/write?q=s-1" className={primaryButton}>
             첫 기억 쓰러 가기
           </Link>
-          <Link
-            href="/together"
-            className="flex h-12 items-center justify-center text-ui text-primary underline hover:text-primary-hover"
-          >
-            다른 사람들의 첫 기억 먼저 보기
-          </Link>
+          <TogetherLink />
           <p className="mt-1 flex items-center gap-1.5 text-caption text-ink-sub">
             <LockIcon size={14} />
             기록은 기본 비공개예요. 공유는 내가 고를 때만.
