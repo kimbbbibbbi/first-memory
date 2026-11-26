@@ -53,7 +53,7 @@ export default function AuthForm({ mode }: { mode: "login" | "signup" }) {
         첫 기억
       </Link>
       <div className="mt-8 flex flex-col items-center gap-2 text-center">
-        <Seed size={72} />
+        <Seed size={56} />
         <h1 className="font-batang text-question font-bold">{isSignup ? "가입하기" : "로그인"}</h1>
         <p className="text-ui text-ink-sub">
           {isSignup

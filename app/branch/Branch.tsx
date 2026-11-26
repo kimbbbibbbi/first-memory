@@ -80,7 +80,7 @@ function BranchView({
 
       <main className="flex flex-1 flex-col px-5 pt-1">
         <div className="flex flex-col items-center gap-1.5 px-1 text-center">
-          <Seed size={88} />
+          <Seed size={64} />
           <h2 className="mt-1 font-batang text-notice font-bold">{heading}</h2>
           <p className="text-sm text-ink-sub">{sub}</p>
         </div>

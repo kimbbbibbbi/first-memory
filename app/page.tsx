@@ -11,9 +11,9 @@ export default function Home() {
   return (
     <>
       <AccountBar />
-      <main className="flex flex-1 flex-col items-center px-7 pt-10 pb-24">
+      <main className="flex flex-1 flex-col items-center px-7 pt-14 pb-24">
         <div className="flex flex-col items-center">
-          <Seed size={200} />
+          <Seed size={140} />
           <h1 className="mt-7 mb-3 text-center font-batang text-hero font-bold">
             당신이 기억하는
             <br />

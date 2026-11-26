@@ -30,7 +30,7 @@ export default function ResetPasswordPage() {
   return (
     <main className="flex flex-1 flex-col px-7 pt-14 pb-8">
       <div className="flex flex-col items-center gap-2 text-center">
-        <Seed size={72} />
+        <Seed size={56} />
         <h1 className="font-batang text-question font-bold">새 비밀번호 정하기</h1>
       </div>
 

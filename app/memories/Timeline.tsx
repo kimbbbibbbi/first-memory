@@ -37,7 +37,7 @@ function TimelineView({ stored, clues }: { stored: Memory[]; clues: Clue[] }) {
   if (memories.length === 0) {
     return (
       <main className="flex flex-1 flex-col items-center justify-center gap-3 px-7 pb-28 text-center">
-        <Seed size={72} />
+        <Seed size={56} />
         <p className="font-batang text-card-question font-bold">아직 쓴 기억이 없어요</p>
         <p className="text-ui text-ink-sub">가장 첫 기억부터 천천히 떠올려 볼까요?</p>
         <Link href="/write?q=s-1" className={textLink}>

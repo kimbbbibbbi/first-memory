@@ -177,7 +177,7 @@ function WriteForm({
 
       <main className="flex flex-1 flex-col gap-3.5 px-6 pt-2">
         <div className="flex items-center gap-2.5">
-          <Seed size={56} />
+          <Seed size={40} />
           <span className="text-caption text-ink-sub">{prompt.label}</span>
         </div>
 

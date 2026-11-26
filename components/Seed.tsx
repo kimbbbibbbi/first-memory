@@ -6,7 +6,7 @@ import Image from "next/image";
 
 const RATIO = 520 / 600;
 
-export default function Seed({ size = 72 }: { size?: number }) {
+export default function Seed({ size = 56 }: { size?: number }) {
   return (
     <Image
       src="/gamja.webp"

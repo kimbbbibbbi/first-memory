@@ -51,7 +51,7 @@ function JourneyView({ memories, clues }: { memories: Memory[]; clues: Clue[] })
         aria-label="이어서 쓰기"
         className="flex flex-col items-center rounded-card-lg bg-card px-5 pt-5 pb-2 text-center"
       >
-        <Seed size={72} />
+        <Seed size={56} />
         <span className="mt-2.5 text-caption text-ink-sub">{card.label}</span>
         <p className="mt-1.5 mb-4 font-batang text-card-question font-bold">{card.text}</p>
         <Link
