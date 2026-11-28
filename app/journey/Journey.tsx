@@ -147,27 +147,34 @@ function JourneyView({ memories, clues }: { memories: Memory[]; clues: Clue[] })
                   >
                     {topicQuestions(topic).map((q) => {
                       const answered = answeredCount.get(q.id) ?? 0;
+                      // 이미 답한 질문은 흐리게 보여 주고 다시 고를 수 없어요 (2026-11-28)
+                      if (answered > 0) {
+                        return (
+                          <li
+                            key={q.id}
+                            className="flex min-h-11 items-center gap-2.5 px-2 py-2.5 opacity-50"
+                          >
+                            <span className="flex size-5 shrink-0 items-center justify-center rounded-full bg-ink-sub text-card">
+                              <CheckIcon size={12} strokeWidth={3} />
+                            </span>
+                            <span className="flex-1 font-batang text-scene text-ink-sub">{q.text}</span>
+                            <span className="shrink-0 text-tag text-ink-sub">
+                              답했어요<span className="sr-only"> (다시 고를 수 없어요)</span>
+                            </span>
+                          </li>
+                        );
+                      }
                       return (
                         <li key={q.id}>
                           <Link
                             href={`/write?q=${q.id}`}
                             className="flex min-h-11 items-center gap-2.5 rounded-row px-2 py-2.5 hover:bg-paper"
                           >
-                            {answered > 0 ? (
-                              <span className="flex size-5 shrink-0 items-center justify-center rounded-full bg-primary text-card">
-                                <CheckIcon size={12} strokeWidth={3} />
-                                <span className="sr-only">답한 질문</span>
-                              </span>
-                            ) : (
-                              <span
-                                aria-hidden="true"
-                                className="size-5 shrink-0 rounded-full border-2 border-off"
-                              />
-                            )}
+                            <span
+                              aria-hidden="true"
+                              className="size-5 shrink-0 rounded-full border-2 border-off"
+                            />
                             <span className="flex-1 font-batang text-scene text-ink">{q.text}</span>
-                            {answered > 0 && (
-                              <span className="shrink-0 text-tag text-ink-sub">기억 {answered}개</span>
-                            )}
                           </Link>
                         </li>
                       );
