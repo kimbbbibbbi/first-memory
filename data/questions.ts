@@ -241,6 +241,8 @@ export const TOPIC_QUESTIONS: Question[] = [
   { id: "t-sound-1", layer: "topic", dimension: "소리와 노래", text: "어린 시절 자주 듣던 노래가 있나요?", sort_order: 1 },
   { id: "t-sound-2", layer: "topic", dimension: "소리와 노래", text: "지금도 들으면 그때가 떠오르는 소리가 있나요?", sort_order: 2 },
   { id: "t-sound-3", layer: "topic", dimension: "소리와 노래", text: "누군가 불러 주던 노래나 들려주던 이야기가 있나요?", sort_order: 3 },
+  { id: "t-sound-4", layer: "topic", dimension: "소리와 노래", text: "어린 시절 좋아하던 영화가 있나요?", sort_order: 4 },
+  { id: "t-sound-5", layer: "topic", dimension: "소리와 노래", text: "가장 처음 본 방송이나 영화는 무엇인가요?", sort_order: 5 },
   { id: "t-thing-1", layer: "topic", dimension: "물건과 장난감", text: "가장 아끼던 장난감이나 물건은 무엇이었나요?", sort_order: 1 },
   { id: "t-thing-2", layer: "topic", dimension: "물건과 장난감", text: "잃어버려서 아쉬웠던 물건이 있나요?", sort_order: 2 },
   { id: "t-thing-3", layer: "topic", dimension: "물건과 장난감", text: "갖고 싶었지만 갖지 못했던 것이 있나요?", sort_order: 3 },

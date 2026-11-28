@@ -9,7 +9,7 @@
 | 문서 | 내용 |
 | --- | --- |
 | [PLAN.md](PLAN.md) | 기획서: 사용자 흐름, 질문 설계(세 겹 질문), 데이터 구조, 로드맵 |
-| [QUESTIONS.md](QUESTIONS.md) | 질문 68개: 출발 3 · 구체화 19 · 이어가기 틀 10 · 주제 36(주제 11개). `{ }`는 실마리가 들어갈 자리 |
+| [QUESTIONS.md](QUESTIONS.md) | 질문 70개: 출발 3 · 구체화 19 · 이어가기 틀 10 · 주제 38(주제 11개). `{ }`는 실마리가 들어갈 자리 |
 | [DESIGN.md](DESIGN.md) | 디자인 명세: 화면 흐름, 토큰, 컴포넌트 규칙 |
 | `design/*.dc.html` | 화면 시안 8장 (Main, Write, Deepen, Clue, Branch, Journey, Timeline, Feed) |
 
