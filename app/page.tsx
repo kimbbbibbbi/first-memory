@@ -2,11 +2,11 @@ import Link from "next/link";
 import AccountBar from "@/components/AccountBar";
 import BottomTabs from "@/components/BottomTabs";
 import Seed from "@/components/Seed";
+import StartWriteLink from "@/components/StartWriteLink";
 import TogetherLink from "@/components/TogetherLink";
-import { primaryButton } from "@/components/ui";
 
 // 시작 화면 (시안 Main.dc.html). 맨 위 한 줄에서 로그인했는지 보여주고,
-// 아래에는 하단 탭(질문·내 기억·함께 보기)을 둬요 (2026-11-26 결정).
+// 아래에는 하단 탭(내 기억·질문·함께 보기)을 둬요 (2026-11-26 결정).
 export default function Home() {
   return (
     <>
@@ -27,10 +27,8 @@ export default function Home() {
           </p>
         </div>
 
-        <div className="mt-auto flex w-full flex-col items-center gap-2 pt-10">
-          <Link href="/write?q=s-1" className={primaryButton}>
-            첫 기억 쓰러 가기
-          </Link>
+        <div className="mt-auto flex w-full flex-col items-center gap-3 pt-10">
+          <StartWriteLink />
           <TogetherLink />
           <Link
             href="/privacy"
