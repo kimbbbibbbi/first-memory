@@ -10,9 +10,20 @@ import { resetMyData } from "./useStored";
 /** Supabase가 허락하는 가장 짧은 길이 (Authentication 설정의 Minimum password length와 같게) */
 export const PASSWORD_MIN = 6;
 
-/** 로그인 뒤 돌아갈 곳. 우리 앱 안의 주소만 허락해요. */
+/**
+ * 로그인 뒤 돌아갈 곳. 우리 앱 안의 주소만 허락해요.
+ * "/\example.com"이나 탭·줄바꿈이 섞인 주소는 브라우저가 다른 사이트로 읽을 수 있어서,
+ * 실제 주소로 바꿔 본 뒤 우리 사이트 안일 때만 써요 (2026-11-28 보안 점검).
+ */
 export function safeNext(next: string | null, fallback: string): string {
-  return next && next.startsWith("/") && !next.startsWith("//") ? next : fallback;
+  if (!next || !next.startsWith("/") || next.startsWith("//") || next.includes("\\")) return fallback;
+  const base = "https://first-memory.invalid";
+  try {
+    const url = new URL(next, base);
+    return url.origin === base ? url.pathname + url.search : fallback;
+  } catch {
+    return fallback;
+  }
 }
 
 function friendly(message: string | undefined, code: string | undefined): string {

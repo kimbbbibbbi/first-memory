@@ -84,8 +84,8 @@ grant execute on function public.nickname_available(text) to anon, authenticated
 create table public.memories (
   id uuid primary key default gen_random_uuid(),
   user_id uuid not null default auth.uid() references auth.users (id) on delete cascade,
-  question_id text,                       -- 자유 기록이면 비어 있어요
-  question_text text,                     -- 쓸 때 보였던 질문 문장 (실마리가 들어 있을 수 있어 공유하지 않아요)
+  question_id text check (question_id is null or char_length(question_id) <= 40),            -- 자유 기록이면 비어 있어요
+  question_text text check (question_text is null or char_length(question_text) <= 300),   -- 쓸 때 보였던 질문 문장 (실마리가 들어 있을 수 있어 공유하지 않아요)
   parent_id uuid references public.memories (id) on delete set null,
   from_clue_id uuid,                      -- 아래 clues 표를 만든 뒤 연결해요
   title text not null default '' check (char_length(title) <= 40),
@@ -160,7 +160,7 @@ create table public.memory_details (
   id uuid primary key default gen_random_uuid(),
   memory_id uuid not null references public.memories (id) on delete cascade,
   user_id uuid not null default auth.uid() references auth.users (id) on delete cascade,
-  question_id text not null,
+  question_id text not null check (char_length(question_id) <= 40),
   answer text check (answer is null or char_length(answer) <= 200),  -- 비어 있으면 "잘 모르겠어요"
   created_at timestamptz not null default now(),
   unique (memory_id, question_id)
@@ -327,7 +327,7 @@ create policy "신고: 공유된 남의 글에만 하기" on public.reports
 revoke all on public.reports from anon, authenticated;
 grant insert (memory_id, reason) on public.reports to authenticated;
 
--- 서로 다른 3명이 신고하면 자동으로 숨겨요
+-- 서로 다른 3명(가입한 지 하루 지난 계정)이 신고하면 자동으로 숨겨요
 create function public.reports_auto_hide()
 returns trigger
 language plpgsql
@@ -335,7 +335,14 @@ security definer
 set search_path = ''
 as $$
 begin
-  if (select count(distinct reporter_id) from public.reports where memory_id = new.memory_id) >= 3 then
+  -- 가입한 지 하루가 지난 계정의 신고만 세요 (가짜 계정으로 숨기기 방지, 04_report_guard.sql)
+  if (
+    select count(distinct r.reporter_id)
+    from public.reports r
+    join auth.users u on u.id = r.reporter_id
+    where r.memory_id = new.memory_id
+      and u.created_at < now() - interval '1 day'
+  ) >= 3 then
     update public.memories set hidden = true where id = new.memory_id;
   end if;
   return new;
