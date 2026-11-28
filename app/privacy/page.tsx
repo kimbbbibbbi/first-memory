@@ -9,7 +9,7 @@ export const metadata: Metadata = { title: "개인정보 처리방침" };
 
 const OPERATOR = "서광일";
 const CONTACT = "rhkdlf02@naver.com";
-const EFFECTIVE_DATE = "2026년 11월 27일";
+const EFFECTIVE_DATE = "2026년 11월 28일";
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
@@ -102,7 +102,7 @@ export default function PrivacyPage() {
         <p>
           모든 기억은 처음에 &lsquo;나만 보기&rsquo;로 저장됩니다. 이용자가 기억마다 공유를 직접 켠 경우에만
           그 기억의 <strong>본문, 별명, 질문 종류, 공감 수</strong>가 &lsquo;함께 보기&rsquo;에 표시됩니다.
-          함께 보기는 로그인한 이용자만 볼 수 있습니다.
+          함께 보기는 로그인하지 않은 사람도 볼 수 있습니다.
         </p>
         <p>
           나이, 기억의 출처, 구체화 답, 실마리, 이메일은 공유하더라도 다른 이용자에게 보이지 않습니다. 공유는
