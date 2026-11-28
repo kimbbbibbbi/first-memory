@@ -66,7 +66,7 @@ export default function AuthForm({ mode }: { mode: "login" | "signup" }) {
 
       {fromWriting && (
         <p role="note" className="mt-6 rounded-row bg-sand px-4 py-3 text-center text-caption text-sand-ink">
-          기억을 쓰려면 로그인이 필요해요. 로그인하면 쓰던 곳으로 바로 이어져요.
+          기억을 쓰려면 로그인이 필요해요.
         </p>
       )}
 

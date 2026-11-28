@@ -5,12 +5,12 @@ import { usePathname } from "next/navigation";
 import { GridIcon, ListIcon, PencilIcon } from "./icons";
 
 const TABS = [
-  { href: "/journey", label: "질문", Icon: PencilIcon },
   { href: "/memories", label: "내 기억", Icon: ListIcon },
+  { href: "/journey", label: "질문", Icon: PencilIcon },
   { href: "/together", label: "함께 보기", Icon: GridIcon },
 ];
 
-/** 하단 탭 3개 (높이 72) */
+/** 하단 탭 3개 (높이 72). 순서: 내 기억 · 질문 · 함께 보기 (2026-11-28) */
 export default function BottomTabs() {
   const pathname = usePathname();
 
