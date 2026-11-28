@@ -3,7 +3,6 @@ import AccountBar from "@/components/AccountBar";
 import BottomTabs from "@/components/BottomTabs";
 import Seed from "@/components/Seed";
 import TogetherLink from "@/components/TogetherLink";
-import { LockIcon } from "@/components/icons";
 import { primaryButton } from "@/components/ui";
 
 // 시작 화면 (시안 Main.dc.html). 맨 위 한 줄에서 로그인했는지 보여주고,
@@ -33,10 +32,6 @@ export default function Home() {
             첫 기억 쓰러 가기
           </Link>
           <TogetherLink />
-          <p className="mt-1 flex items-center gap-1.5 text-caption text-ink-sub">
-            <LockIcon size={14} />
-            기록은 기본 비공개예요. 공유는 내가 고를 때만.
-          </p>
           <Link
             href="/privacy"
             className="flex h-11 items-center px-2 text-caption text-ink-sub underline hover:text-ink"
