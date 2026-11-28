@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * 별명으로 공유하기 스위치 (기본 꺼짐)
+ * 이 기억 공유하기 스위치 (기본 꺼짐)
  * 켜면 아래에 "본문만 별명과 함께 보여요…" 확인 안내가 나와요.
  * 실제 공유는 "저장" 버튼을 눌러야 일어나요.
  */
@@ -17,9 +17,9 @@ export default function ShareSwitch({
 }) {
   return (
     <div className="flex flex-col gap-2">
-      <div className="flex items-center gap-3 rounded-card bg-card px-4 py-3.5">
-        <div className="flex flex-1 flex-col gap-0.5">
-          <span className="text-ui">별명으로 공유하기</span>
+      <div className="flex items-center gap-3 rounded-card bg-card px-4.5 py-4.5">
+        <div className="flex flex-1 flex-col gap-1">
+          <span className="text-card-question-sm font-bold">이 기억 공유하기</span>
           <span className="text-caption text-ink-sub">
             {on ? "저장하면 함께 보기에 별명과 함께 올라가요" : "꺼져 있으면 나만 볼 수 있어요"}
           </span>
@@ -28,7 +28,7 @@ export default function ShareSwitch({
           type="button"
           role="switch"
           aria-checked={on}
-          aria-label="별명으로 공유하기"
+          aria-label="이 기억 공유하기"
           onClick={() => onChange(!on)}
           className={`relative h-8 w-13 shrink-0 rounded-full transition-colors ${
             on ? "bg-primary" : "bg-off"
