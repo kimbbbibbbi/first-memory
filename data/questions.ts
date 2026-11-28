@@ -244,7 +244,7 @@ export const TOPIC_QUESTIONS: Question[] = [
   { id: "t-thing-1", layer: "topic", dimension: "물건과 장난감", text: "가장 아끼던 장난감이나 물건은 무엇이었나요?", sort_order: 1 },
   { id: "t-thing-2", layer: "topic", dimension: "물건과 장난감", text: "잃어버려서 아쉬웠던 물건이 있나요?", sort_order: 2 },
   { id: "t-thing-3", layer: "topic", dimension: "물건과 장난감", text: "갖고 싶었지만 갖지 못했던 것이 있나요?", sort_order: 3 },
-  { id: "t-nature-1", layer: "topic", dimension: "동물과 자연", text: "처음 키워 본 동물이 기억나나요?", sort_order: 1 },
+  { id: "t-nature-1", layer: "topic", dimension: "동물과 자연", text: "처음 키워 본 애완동물이 기억나나요?", sort_order: 1 },
   { id: "t-nature-2", layer: "topic", dimension: "동물과 자연", text: "자주 놀던 나무나 풀밭, 물가 같은 곳이 있었나요?", sort_order: 2 },
   { id: "t-nature-3", layer: "topic", dimension: "동물과 자연", text: "가장 기억에 남는 동물이 있나요?", sort_order: 3 },
   { id: "t-outing-1", layer: "topic", dimension: "나들이와 특별한 날", text: "기억이 나는 첫 여행지는 어디였나요?", sort_order: 1 },
