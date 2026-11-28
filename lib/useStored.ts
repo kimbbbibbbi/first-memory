@@ -15,9 +15,18 @@ export interface MyData {
   details: MemoryDetail[];
   clues: Clue[];
   nickname: string | null;
+  /** 로그인하지 않고 둘러보는 중인지 (그러면 기억은 늘 비어 있어요, 2026-11-28) */
+  guest: boolean;
 }
 
-const INITIAL: MyData = { status: "loading", memories: [], details: [], clues: [], nickname: null };
+const INITIAL: MyData = {
+  status: "loading",
+  memories: [],
+  details: [],
+  clues: [],
+  nickname: null,
+  guest: false,
+};
 
 let state: MyData = INITIAL;
 let started = false;
@@ -39,6 +48,13 @@ export async function refreshMyData(): Promise<void> {
   started = true;
   const myVersion = ++version;
   const db = supabase();
+  // 로그인하지 않았으면 서버에 묻지 않고 빈 기록장으로 둘러보게 해요
+  const { data: claims } = await db.auth.getClaims();
+  if (myVersion !== version) return;
+  if (!claims?.claims) {
+    setState({ ...INITIAL, status: "ready", guest: true });
+    return;
+  }
   const [memories, details, clues, profile] = await Promise.all([
     db.from("memories").select("*").order("created_at"),
     db.from("memory_details").select("*").order("created_at"),
@@ -57,6 +73,7 @@ export async function refreshMyData(): Promise<void> {
     details: (details.data ?? []) as MemoryDetail[],
     clues: (clues.data ?? []) as Clue[],
     nickname: profile.data?.nickname ?? null,
+    guest: false,
   });
 }
 

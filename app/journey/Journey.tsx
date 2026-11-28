@@ -16,12 +16,12 @@ const CLUE_PREVIEW = 3;
 export default function Journey() {
   return (
     <DataGate>
-      {({ memories, clues }) => <JourneyView memories={memories} clues={clues} />}
+      {({ memories, clues, guest }) => <JourneyView memories={memories} clues={clues} guest={guest} />}
     </DataGate>
   );
 }
 
-function JourneyView({ memories, clues }: { memories: Memory[]; clues: Clue[] }) {
+function JourneyView({ memories, clues, guest }: { memories: Memory[]; clues: Clue[]; guest: boolean }) {
   const [showAllClues, setShowAllClues] = useState(false);
   // 펼쳐 둔 주제 (한 번에 하나만)
   const [openTopic, setOpenTopic] = useState<string | null>(null);
@@ -40,6 +40,15 @@ function JourneyView({ memories, clues }: { memories: Memory[]; clues: Clue[] })
 
   return (
     <main className="flex flex-col gap-3 px-5 pt-2 pb-28">
+      {/* 로그인하지 않고 둘러보는 중 (2026-11-28) */}
+      {guest && (
+        <p className="rounded-row bg-sand px-4 py-3 text-caption text-sand-ink">
+          로그인하면 기억을 쓰고 모아 둘 수 있어요.{" "}
+          <Link href="/login?next=%2Fjourney" className="text-primary underline">
+            로그인
+          </Link>
+        </p>
+      )}
       {/* 통계 카드 2개 */}
       <div className="flex gap-3">
         <Stat label="쓴 기억" value={`${memories.length}개`} />

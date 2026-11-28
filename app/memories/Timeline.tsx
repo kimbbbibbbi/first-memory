@@ -7,7 +7,7 @@ import DataGate from "@/components/DataGate";
 import MemoryCard from "@/components/MemoryCard";
 import Seed from "@/components/Seed";
 import { PlusIcon } from "@/components/icons";
-import { textLink } from "@/components/ui";
+import { primaryButton, textLink } from "@/components/ui";
 import { memoryOrigin } from "@/lib/prompts";
 import { deleteMemory, sortByAge } from "@/lib/storage";
 import type { Clue, Memory } from "@/lib/types";
@@ -23,8 +23,32 @@ type Filter = (typeof FILTERS)[number]["id"];
 export default function Timeline() {
   return (
     <DataGate>
-      {({ memories, clues }) => <TimelineView stored={memories} clues={clues} />}
+      {({ memories, clues, guest }) =>
+        guest ? <GuestTimeline /> : <TimelineView stored={memories} clues={clues} />
+      }
     </DataGate>
+  );
+}
+
+/** 로그인하지 않고 둘러볼 때 (2026-11-28) */
+function GuestTimeline() {
+  return (
+    <main className="flex flex-1 flex-col items-center justify-center gap-3 px-7 pb-28 text-center">
+      <Seed size={56} pose="lying" />
+      <p className="font-batang text-card-question font-bold">
+        로그인하면 내가 쓴 기억을
+        <br />
+        여기서 모아 볼 수 있어요
+      </p>
+      <div className="mt-3 flex w-full flex-col">
+        <Link href="/login?next=%2Fmemories" className={primaryButton}>
+          로그인
+        </Link>
+        <Link href="/signup?next=%2Fmemories" className={textLink}>
+          가입하기
+        </Link>
+      </div>
+    </main>
   );
 }
 

@@ -26,6 +26,8 @@ export default function AuthForm({ mode }: { mode: "login" | "signup" }) {
 
   const isSignup = mode === "signup";
   const goTo = safeNext(next, isSignup ? "/write?q=s-1" : "/journey");
+  // 기억 쓰기 화면에서 넘어왔으면 왜 로그인해야 하는지 알려 줘요 (2026-11-28)
+  const fromWriting = /^\/(write|deepen|organize|branch)(\?|$)/.test(goTo);
   const otherHref = `${isSignup ? "/login" : "/signup"}${next ? `?next=${encodeURIComponent(next)}` : ""}`;
 
   async function handleSubmit(e: React.FormEvent) {
@@ -61,6 +63,12 @@ export default function AuthForm({ mode }: { mode: "login" | "signup" }) {
             : "쓴 기억은 로그인하면 어디서든 볼 수 있어요."}
         </p>
       </div>
+
+      {fromWriting && (
+        <p role="note" className="mt-6 rounded-row bg-sand px-4 py-3 text-center text-caption text-sand-ink">
+          기억을 쓰려면 로그인이 필요해요. 로그인하면 쓰던 곳으로 바로 이어져요.
+        </p>
+      )}
 
       <form onSubmit={handleSubmit} className="mt-8 flex flex-col gap-4" noValidate>
         {isSignup && (
